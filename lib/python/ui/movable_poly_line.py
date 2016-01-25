@@ -7,7 +7,7 @@ import numpy as np
 class MovablePolyLine(QGraphicsObject):
     def __init__(self, parent=None):
         super(MovablePolyLine, self).__init__(parent)
-        self.setZValue(1000)
+        self.setZValue(10)
         self.polygon = QPolygonF()
         self.radius = 5.0
         self.itemList = []
@@ -89,10 +89,10 @@ class MovablePolyLine(QGraphicsObject):
                 if not flag:
                     item.hide()
 
-                item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemSendsScenePositionChanges)
-                item.setAcceptHoverEvents(True)
-                item.mouseMoveEvent = self.generateItemMouseMoveEvent(item, point)
-                item.mousePressEvent = self.generateItemMousePressEvent(item, point)
+                # item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemSendsScenePositionChanges)
+                item.setAcceptHoverEvents(False)
+                # item.mouseMoveEvent = self.generateItemMouseMoveEvent(item, point)
+                # item.mousePressEvent = self.generateItemMousePressEvent(item, point)
 
     def setRect(self, rect):
         self.rect = rect

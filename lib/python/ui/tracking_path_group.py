@@ -12,7 +12,7 @@ class TrackingPathGroup(QGraphicsObject):
     def __init__(self, parent=None):
         super(TrackingPathGroup, self).__init__(parent)
 
-        self.setZValue(1000)
+        self.setZValue(10)
         self.drawItemFlag = True
         self.drawLineFlag = True
         self.df = None
