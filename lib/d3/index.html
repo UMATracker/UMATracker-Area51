@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+    font: 10px sans-serif;
+}
+.chord path {
+    fill-opacity: .67;
+    stroke: #000;
+    stroke-width: .5px;
+}
+
+html,body,#wrapper {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+}
+
+.chart {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+}
+
+.axis path,.axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+#forkme_banner {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 10px;
+	z-index: 10;
+	padding: 10px 50px 10px 10px;
+	color: #fff;
+	background:
+		url('http://dk8996.github.io/Gantt-Chart/images/blacktocat.png')
+		#0090ff no-repeat 95% 50%;
+	font-weight: 700;
+	box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	text-decoration: none;
+}
+</style>
+<head>
+    <script src="jquery-2.2.0.min.js"></script>
+    <script src="d3.min.js"></script>
+    <script src="gantt-chart-d3.js"></script>
+    <script src="draw_diagram.js"></script>
+</head>
+<body>
+<!--     <script> -->
+<!-- var matrix = [ -->
+<!--     [11975,  5871, 8916, 2868], -->
+<!--     [ 1951, 10048, 2060, 6171], -->
+<!--     [ 8010, 16145, 8090, 8045], -->
+<!--     [ 1013,   990,  940, 6907] -->
+<!-- ]; -->
+<!--  -->
+<!-- var colors = ["#000000", "#FFDD89", "#957244", "#F26223"] -->
+<!-- draw_chord_diagram(matrix, colors); -->
+<!--     </script> -->
+
+<!-- <script> -->
+<!-- var tasks = [ -->
+<!-- { -->
+<!--     "startDate": 10, -->
+<!--     "endDate": 20, -->
+<!--     "taskName": "E Job", -->
+<!--     "status": "no0" -->
+<!-- }, -->
+<!-- { -->
+<!--     "startDate": 30, -->
+<!--     "endDate": 40, -->
+<!--     "taskName": "A Job", -->
+<!--     "status": "no1" -->
+<!-- } -->
+<!-- ]; -->
+<!--  -->
+<!-- var taskNames = [ "D Job", "P Job", "E Job", "A Job", "N Job" ]; -->
+<!-- var statusNames = ["no0", "no1"]; -->
+<!-- var colors = ["#000000", "#957244", "#FFDD89", "#F26223"]; -->
+<!-- draw_timeline_diagram(tasks, taskNames, statusNames, colors); -->
+<!-- </script> -->
+</body>

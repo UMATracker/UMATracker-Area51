@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os, sys
@@ -17,23 +16,26 @@ elif __file__:
 sampleDataPath = os.path.join(currentDirPath,"data")
 userDir        = os.path.expanduser('~')
 
-import re, hashlib, json
+import re, hashlib, json, itertools, operator
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QFileDialog, QMainWindow, QDialog, QItemEditorCreatorBase, QItemEditorFactory, QTableWidget, QTableWidgetItem, QStyledItemDelegate, QProgressDialog, QStyle
-from PyQt5.QtGui import QPixmap, QColor, QBrush, QIcon
+from PyQt5.QtGui import QPixmap, QColor, QBrush, QIcon, QPen
 from PyQt5.QtCore import QRectF, QPointF, Qt, QVariant
 # from shapely.geometry import Polygon, Point
 
 import cv2
 import pandas as pd
 import numpy as np
+import pyqtgraph as pg
 
 import icon
 from lib.python import misc
 from lib.python.ui.main_window_base import Ui_MainWindowBase
 from lib.python.ui.tracking_path_group import TrackingPathGroup
 from lib.python.ui.editorfactory import *
+
+from lib.python.ui.js_plot_dialog import *
 
 import urllib.request
 blocklyURL = "file:" + urllib.request.pathname2url(os.path.join(currentDirPath,"lib","editor","index.html"))
@@ -50,6 +52,22 @@ handler = NullHandler() if True else StreamHandler()
 handler.setLevel(DEBUG)
 logger.setLevel(DEBUG)
 logger.addHandler(handler)
+
+import math
+
+def nCr(n,r):
+    f = math.factorial
+    return f(n) / f(r) / f(n-r)
+
+def get_interval(data):
+    ranges = []
+    for key, group in itertools.groupby(enumerate(data), lambda index: index[0] - index[1]):
+        group = list(map(operator.itemgetter(1), group))
+        if len(group) > 1:
+            ranges.append((group[0], group[-1]))
+        else:
+            ranges.append((group[0], group[0]))
+    return ranges
 
 
 class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
@@ -68,10 +86,18 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.trackingPathGroup = None
         self.currentFrameNo = None
 
+        self.graphicsItems = {}
+
         factory = QItemEditorFactory()
         factory.registerEditor(QVariant.Color, ColorListItemEditorCreator())
 
         self.createGUI()
+
+        self.chord_diagram_dialog = ChordDiagramDialog(self)
+        self.timeline_diagram_dialog = TimelineDiagramDialog(self)
+
+        # dialog = TimelineDiagramDialog(self)
+        # dialog.show()
 
     def createGUI(self):
         colorEditorFactory = QItemEditorFactory()
@@ -131,7 +157,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         name_item = self.regionTableWidget.item(selected_row, 0)
         name = name_item.data(Qt.UserRole)
 
-        item = self.getGraphicsItemFromInputScene(name)
+        item = self.graphicsItems.pop(name)
         if item is not None:
             self.inputScene.removeItem(item)
 
@@ -187,7 +213,8 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                         changed_item.setData(Qt.DisplayRole, old_name)
                         return
 
-                item = self.getGraphicsItemFromInputScene(old_name)
+                self.graphicsItem[new_name] = self.graphicsItems.pop(old_name)
+                item = self.graphicsItems[new_name]
                 if item is not None:
                     item.setObjectName(new_name)
                 changed_item.setData(Qt.UserRole, new_name)
@@ -203,7 +230,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
                     name_item = self.regionTableWidget.item(row, 0)
                     name = name_item.data(Qt.DisplayRole)
-                    item = self.getGraphicsItemFromInputScene(name)
+                    item = self.graphicsItems[name]
                     if item is not None:
                         item.setColor(disp_color)
             except:
@@ -223,6 +250,9 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
                 new_fig = new_type.value()
                 new_fig.setObjectName(name)
+
+                self.graphicsItems[name] = new_fig
+
                 if new_type is not FigureType.Point:
                     new_fig.setZValue(1000-10*row)
                 else:
@@ -259,11 +289,11 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
         if source_type is not FigureType.Point and dest_type is not FigureType.Point:
             source_name = self.regionTableWidget.item(source_row, 0).data(Qt.DisplayRole)
-            source_fig_item = self.getGraphicsItemFromInputScene(source_name)
+            source_fig_item = self.graphicsItem[source_name]
             source_z = source_fig_item.zValue()
 
             dest_name = self.regionTableWidget.item(dest_row, 0).data(Qt.DisplayRole)
-            dest_fig_item = self.getGraphicsItemFromInputScene(dest_name)
+            dest_fig_item = self.graphicsItems[dest_name]
             dest_z = dest_fig_item.zValue()
 
             source_fig_item.setZValue(dest_z)
@@ -409,11 +439,15 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.inputGraphicsView.fitInView(QtCore.QRectF(self.inputPixMap.rect()), QtCore.Qt.KeepAspectRatio)
 
     def process(self, activated=False):
-        if self.df is None or len(self.getCol(0))==0:
+        # if self.df is None or len(self.getCol(0))==0:
+        #     return
+
+        if self.df is None:
             return
 
         names = list(map(lambda x: x.data(Qt.UserRole), self.getCol(0)))
-        items = list(map(lambda x: self.getGraphicsItemFromInputScene(x), names))
+        items = [self.graphicsItems[name] for name in names]
+        colors = {('no'+name):color.data(Qt.BackgroundRole) for name, color in zip(names, self.getCol(1))}
         region_list = list(filter(lambda x:type(x[1]) is not FigureType.Point.value, zip(names, items)))
         point_list = list(filter(lambda x:type(x[1]) is FigureType.Point.value, zip(names, items)))
 
@@ -436,22 +470,75 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         progress = QProgressDialog("Running...", "Abort", 0, len(df.index), self)
         progress.setWindowModality(Qt.WindowModal)
 
+        interactions = [0 for i in range(int(nCr(col_n, 2)))]
+        radius = self.trackingPathGroup.getRadius()
+        radius = 100
+
+
         for i, row in enumerate(df.index):
             progress.setValue(i)
             if progress.wasCanceled():
                 break
 
+            pts = []
             for col in range(col_n):
                 pt = np.array(df.loc[row, 2*col:2*col+1])
+                pts.append(pt)
                 for name, item in point_list:
                     self.df_dist.loc[row, "{0}_{1}".format(name, col)] = item.distance(pt)
                 for name, item in region_list:
                     if item.includes(pt):
                         self.df_region.loc[row, col] = name
                         break
-
+            for count, (p1, p2) in enumerate(itertools.combinations(pts, 2)):
+                d = np.linalg.norm(p1-p2)
+                if d <= radius:
+                    interactions[count] += 1
         progress.setValue(len(df.index))
-        self.saveCSVFile()
+
+        matrix = np.zeros((col_n, col_n))
+        for pos, (i, j) in enumerate(itertools.combinations(range(col_n), 2)):
+            matrix[i, j] = interactions[pos]
+            matrix[j, i] = interactions[pos]
+
+        for name, item in point_list:
+            plotWidget = pg.plot(title="Point: "+name)
+            plotWidget.addLegend()
+            plotItem = plotWidget.getPlotItem()
+            bottomAxis = plotItem.getAxis("bottom")
+            bottomAxis.setLabel("# of Frame")
+            leftAxis = plotItem.getAxis("left")
+            leftAxis.setLabel("Distance [pixel]")
+            for col, color in zip(range(col_n), self.trackingPathGroup.getColors()):
+                pen = QPen(QColor(*color))
+                pen.setWidth(5)
+                plotWidget.plot(self.df_dist.loc[:, "{0}_{1}".format(name, col)], pen=pen, name=str(col))
+
+        tasks = []
+        for name, item in region_list:
+            for col in range(col_n):
+                df = self.df_region.loc[self.df_region.loc[:, col]==name, col]
+
+                intervals = get_interval(df.index)
+                for interval in intervals:
+                    start, end = interval
+                    data = {
+                            "startDate": start,
+                            "endDate": end,
+                            "taskName": col,
+                            "status": name
+                    }
+                    tasks.append(data)
+
+        self.chord_diagram_dialog.setMatrix(matrix.tolist())
+        self.chord_diagram_dialog.setColors(self.trackingPathGroup.getColors())
+        self.timeline_diagram_dialog.setTasks(tasks)
+        self.timeline_diagram_dialog.setColors(colors)
+
+        self.chord_diagram_dialog.show()
+        self.timeline_diagram_dialog.show()
+
+        # self.saveCSVFile()
 
     def saveCSVFile(self, activated=False, filePath = None):
         if self.df is None or self.df_dist is None or self.df_region is None:

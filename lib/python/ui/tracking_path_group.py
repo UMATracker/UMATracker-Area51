@@ -125,6 +125,9 @@ class TrackingPathGroup(QGraphicsObject):
     def getRadius(self):
         return self.radius
 
+    def getColors(self):
+        return self.colors
+
     def setRect(self, rect):
         self.rect = rect
 
