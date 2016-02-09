@@ -2,7 +2,7 @@ import os
 from distutils.sysconfig import get_python_lib
 import platform
 
-datas = [('./data', 'data'),]
+datas = [('./data', 'data'), ('./lib/d3', 'lib/d3')]
 
 a = Analysis(['./main.py'],
         pathex=['./'],

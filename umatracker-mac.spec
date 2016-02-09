@@ -1,6 +1,6 @@
 import os
 
-datas = [('./data', 'data'),]
+datas = [('./data', 'data'), ('./lib/d3', 'lib/d3')]
 
 binaries = [(r'/usr/local/Cellar/ffms2/2.21/lib/libffms2.dylib', 'lib'), ]
 
