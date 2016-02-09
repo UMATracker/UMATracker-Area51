@@ -12,6 +12,8 @@ class Ui_JSPlotDialog(object):
     def setupUi(self, JSPlotDialog):
         JSPlotDialog.setObjectName("JSPlotDialog")
         JSPlotDialog.resize(650, 650)
+        JSPlotDialog.setMinimumSize(QtCore.QSize(650, 650))
+        JSPlotDialog.setMaximumSize(QtCore.QSize(650, 650))
         self.horizontalLayout = QtWidgets.QHBoxLayout(JSPlotDialog)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.webView = QtWebKitWidgets.QWebView(JSPlotDialog)
