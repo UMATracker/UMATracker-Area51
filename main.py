@@ -83,10 +83,12 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.df = None
         self.df_dist = None
         self.df_region = None
+        self.relation_matrix = None
         self.trackingPathGroup = None
         self.currentFrameNo = None
 
-        self.graphicsItems = {}
+        self.graphics_items = {}
+        self.plot_widgets = []
 
         factory = QItemEditorFactory()
         factory.registerEditor(QVariant.Color, ColorListItemEditorCreator())
@@ -95,6 +97,8 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
         self.chord_diagram_dialog = ChordDiagramDialog(self)
         self.timeline_diagram_dialog = TimelineDiagramDialog(self)
+
+        self.savedFlag = True
 
         # dialog = TimelineDiagramDialog(self)
         # dialog.show()
@@ -157,7 +161,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         name_item = self.regionTableWidget.item(selected_row, 0)
         name = name_item.data(Qt.UserRole)
 
-        item = self.graphicsItems.pop(name)
+        item = self.graphics_items.pop(name)
         if item is not None:
             self.inputScene.removeItem(item)
 
@@ -213,8 +217,8 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                         changed_item.setData(Qt.DisplayRole, old_name)
                         return
 
-                self.graphicsItem[new_name] = self.graphicsItems.pop(old_name)
-                item = self.graphicsItems[new_name]
+                self.graphicsItem[new_name] = self.graphics_items.pop(old_name)
+                item = self.graphics_items[new_name]
                 if item is not None:
                     item.setObjectName(new_name)
                 changed_item.setData(Qt.UserRole, new_name)
@@ -230,7 +234,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
                     name_item = self.regionTableWidget.item(row, 0)
                     name = name_item.data(Qt.DisplayRole)
-                    item = self.graphicsItems[name]
+                    item = self.graphics_items[name]
                     if item is not None:
                         item.setColor(disp_color)
             except:
@@ -251,7 +255,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                 new_fig = new_type.value()
                 new_fig.setObjectName(name)
 
-                self.graphicsItems[name] = new_fig
+                self.graphics_items[name] = new_fig
 
                 if new_type is not FigureType.Point:
                     new_fig.setZValue(1000-10*row)
@@ -293,7 +297,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             source_z = source_fig_item.zValue()
 
             dest_name = self.regionTableWidget.item(dest_row, 0).data(Qt.DisplayRole)
-            dest_fig_item = self.graphicsItems[dest_name]
+            dest_fig_item = self.graphics_items[dest_name]
             dest_z = dest_fig_item.zValue()
 
             source_fig_item.setZValue(dest_z)
@@ -348,8 +352,23 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
         event.acceptProposedAction()
 
-    def closeEvent(self,event):
-        pass
+    def closeEvent(self, event):
+        if self.df is None or self.savedFlag:
+            return
+
+        quit_msg = "Data is not saved.\nAre you sure you want to exit the program?"
+        reply = QtWidgets.QMessageBox.question(
+                self,
+                'Warning',
+                quit_msg,
+                QtWidgets.QMessageBox.Yes,
+                QtWidgets.QMessageBox.No
+                )
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
     def processDropedFile(self,filePath):
         root,ext = os.path.splitext(filePath)
@@ -384,6 +403,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
     def menuInit(self):
         self.actionOpenVideo.triggered.connect(self.openVideoFile)
         self.actionOpenCSVFile.triggered.connect(self.openCSVFile)
+        self.actionSaveCSVFile.triggered.connect(self.saveCSVFile)
         self.actionCalculate.triggered.connect(self.process)
 
     def openVideoFile(self, activated=False, filePath = None):
@@ -445,8 +465,14 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         if self.df is None:
             return
 
+        self.chord_diagram_dialog.hide()
+        self.timeline_diagram_dialog.hide()
+        for plot_widget in self.plot_widgets:
+            plot_widget.window().close()
+        self.plot_widgets.clear()
+
         names = list(map(lambda x: x.data(Qt.UserRole), self.getCol(0)))
-        items = [self.graphicsItems[name] for name in names]
+        items = [self.graphics_items[name] for name in names]
         colors = {('no'+name):color.data(Qt.BackgroundRole) for name, color in zip(names, self.getCol(1))}
         region_list = list(filter(lambda x:type(x[1]) is not FigureType.Point.value, zip(names, items)))
         point_list = list(filter(lambda x:type(x[1]) is FigureType.Point.value, zip(names, items)))
@@ -502,17 +528,19 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             matrix[j, i] = interactions[pos]
 
         for name, item in point_list:
-            plotWidget = pg.plot(title="Point: "+name)
-            plotWidget.addLegend()
-            plotItem = plotWidget.getPlotItem()
-            bottomAxis = plotItem.getAxis("bottom")
-            bottomAxis.setLabel("# of Frame")
-            leftAxis = plotItem.getAxis("left")
-            leftAxis.setLabel("Distance [pixel]")
+            plot_widget = pg.plot(title="Point: "+name)
+            plot_widget.addLegend()
+            plot_item = plot_widget.getPlotItem()
+            bottom_axis = plot_item.getAxis("bottom")
+            bottom_axis.setLabel("# of Frame")
+            left_axis = plot_item.getAxis("left")
+            left_axis.setLabel("Distance [pixel]")
             for col, color in zip(range(col_n), self.trackingPathGroup.getColors()):
                 pen = QPen(QColor(*color))
                 pen.setWidth(5)
-                plotWidget.plot(self.df_dist.loc[:, "{0}_{1}".format(name, col)], pen=pen, name=str(col))
+                plot_widget.plot(self.df_dist.loc[:, "{0}_{1}".format(name, col)], pen=pen, name=str(col))
+
+            self.plot_widgets.append(plot_widget)
 
         tasks = []
         for name, item in region_list:
@@ -536,12 +564,19 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.timeline_diagram_dialog.setColors(colors)
 
         self.chord_diagram_dialog.show()
-        self.timeline_diagram_dialog.show()
+
+        if len(region_list)!=0:
+            self.timeline_diagram_dialog.show()
+
+
+        self.relation_matrix = matrix
+
+        self.savedFlag = False
 
         # self.saveCSVFile()
 
     def saveCSVFile(self, activated=False, filePath = None):
-        if self.df is None or self.df_dist is None or self.df_region is None:
+        if self.df is None or self.df_dist is None or self.df_region is None or self.relation_matrix is None:
             return
 
         dirctory = os.path.dirname(self.filePath)
@@ -557,6 +592,13 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                     self.df_dist.to_csv(filePath)
                 elif attr=='region':
                     self.df_region.to_csv(filePath)
+
+        path = os.path.join(dirctory, '{0}-relation.csv'.format(base_name))
+        filePath, _ = QFileDialog.getSaveFileName(None, 'Save CSV File', path, "CSV files (*.csv)")
+        if len(filePath) is not 0:
+            pd.DataFrame(self.relation_matrix).to_csv(filePath)
+
+        self.savedFlag = True
 
     def evaluate(self):
         if self.df is None or not self.videoPlaybackWidget.isOpened():

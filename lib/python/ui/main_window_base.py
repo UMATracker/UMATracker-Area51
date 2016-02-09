@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main_window_base.ui'
+# Form implementation generated from reading ui file '.\main_window_base.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
@@ -76,7 +76,7 @@ class Ui_MainWindowBase(object):
         self.horizontalLayout.addWidget(self.groupBox)
         MainWindowBase.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindowBase)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 21))
         self.menubar.setObjectName("menubar")
         self.menuFiles = QtWidgets.QMenu(self.menubar)
         self.menuFiles.setObjectName("menuFiles")
@@ -106,9 +106,12 @@ class Ui_MainWindowBase(object):
         self.actionEnable_Disable.setObjectName("actionEnable_Disable")
         self.actionCalculate = QtWidgets.QAction(MainWindowBase)
         self.actionCalculate.setObjectName("actionCalculate")
+        self.actionSaveCSVFile = QtWidgets.QAction(MainWindowBase)
+        self.actionSaveCSVFile.setObjectName("actionSaveCSVFile")
         self.menuFiles.addAction(self.actionOpenVideo)
         self.menuFiles.addSeparator()
         self.menuFiles.addAction(self.actionOpenCSVFile)
+        self.menuFiles.addAction(self.actionSaveCSVFile)
         self.menuFiles.addSeparator()
         self.menuFiles.addAction(self.actionQuit)
         self.menuRun.addAction(self.actionCalculate)
@@ -140,5 +143,6 @@ class Ui_MainWindowBase(object):
         self.actionCreateBackground.setText(_translate("MainWindowBase", "Create"))
         self.actionEnable_Disable.setText(_translate("MainWindowBase", "Enable/Disable"))
         self.actionCalculate.setText(_translate("MainWindowBase", "Calculate"))
+        self.actionSaveCSVFile.setText(_translate("MainWindowBase", "Save CSV"))
 
 from .video_playback_widget import VideoPlaybackWidget
