@@ -228,7 +228,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                         changed_item.setData(Qt.DisplayRole, old_name)
                         return
 
-                self.graphicsItem[new_name] = self.graphics_items.pop(old_name)
+                self.graphics_items[new_name] = self.graphics_items.pop(old_name)
                 item = self.graphics_items[new_name]
                 if item is not None:
                     item.setObjectName(new_name)
@@ -304,7 +304,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
         if source_type is not FigureType.Point and dest_type is not FigureType.Point:
             source_name = self.regionTableWidget.item(source_row, 0).data(Qt.DisplayRole)
-            source_fig_item = self.graphicsItem[source_name]
+            source_fig_item = self.graphics_items[source_name]
             source_z = source_fig_item.zValue()
 
             dest_name = self.regionTableWidget.item(dest_row, 0).data(Qt.DisplayRole)
