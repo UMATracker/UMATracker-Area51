@@ -21,7 +21,7 @@ import re, hashlib, json, itertools, operator
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QFileDialog, QMainWindow, QDialog, QItemEditorCreatorBase, QItemEditorFactory, QTableWidget, QTableWidgetItem, QStyledItemDelegate, QProgressDialog, QStyle
 from PyQt5.QtGui import QPixmap, QColor, QBrush, QIcon, QPen
-from PyQt5.QtCore import QRectF, QPointF, Qt, QVariant
+from PyQt5.QtCore import QRectF, QPointF, Qt, QVariant, pyqtSignal, pyqtSlot
 # from shapely.geometry import Polygon, Point
 
 import cv2
@@ -71,6 +71,8 @@ def get_interval(data):
 
 
 class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
+    updateFrame = pyqtSignal()
+
     def __init__(self):
         super(Ui_MainWindow, self).__init__()
         self.setupUi(self)
@@ -94,6 +96,8 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         factory.registerEditor(QVariant.Color, ColorListItemEditorCreator())
 
         self.createGUI()
+
+        self.updateFrame.connect(self.videoPlaybackWidget.videoPlayback)
 
         self.chord_diagram_dialog = ChordDiagramDialog(self)
         self.timeline_diagram_dialog = TimelineDiagramDialog(self)
@@ -366,6 +370,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                 )
 
         if reply == QtWidgets.QMessageBox.Yes:
+            self.closeDialog()
             event.accept()
         else:
             event.ignore()
@@ -458,6 +463,13 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
     def inputGraphicsViewResized(self, event=None):
         self.inputGraphicsView.fitInView(QtCore.QRectF(self.inputPixMap.rect()), QtCore.Qt.KeepAspectRatio)
 
+    def closeDialog(self):
+        self.chord_diagram_dialog.hide()
+        self.timeline_diagram_dialog.hide()
+        for plot_widget in self.plot_widgets:
+            plot_widget.window().close()
+        self.plot_widgets.clear()
+
     def process(self, activated=False):
         # if self.df is None or len(self.getCol(0))==0:
         #     return
@@ -465,11 +477,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         if self.df is None:
             return
 
-        self.chord_diagram_dialog.hide()
-        self.timeline_diagram_dialog.hide()
-        for plot_widget in self.plot_widgets:
-            plot_widget.window().close()
-        self.plot_widgets.clear()
+        self.closeDialog()
 
         names = list(map(lambda x: x.data(Qt.UserRole), self.getCol(0)))
         items = [self.graphics_items[name] for name in names]
@@ -600,12 +608,15 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
         self.savedFlag = True
 
-    def evaluate(self):
+    def evaluate(self, update=True):
         if self.df is None or not self.videoPlaybackWidget.isOpened():
-            return
+            pass
+        else:
+            if self.trackingPathGroup is not None:
+                self.trackingPathGroup.setPoints(self.currentFrameNo)
 
-        if self.trackingPathGroup is not None:
-            self.trackingPathGroup.setPoints(self.currentFrameNo)
+        if update:
+            self.updateFrame.emit()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
