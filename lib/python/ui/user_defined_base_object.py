@@ -31,7 +31,7 @@ class ResizableGraphicsObject(QGraphicsObject):
 
     def setColor(self, color):
         self.color = QColor(color)
-        self.color.setAlpha(128)
+        self.color.setAlpha(32)
 
     def setPoints(self, points):
         self.points = points
