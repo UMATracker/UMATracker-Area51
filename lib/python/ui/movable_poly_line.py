@@ -25,6 +25,13 @@ class MovablePolyLine(QGraphicsObject):
 
         self.itemType = QGraphicsEllipseItem
 
+    def setLineWidth(self, w):
+        self.lineWidth = w
+        self.update()
+
+    def getLineWidth(self):
+        return self.lineWidth
+
     def setDrawLine(self, flag):
         self.isDrawLine = flag
 

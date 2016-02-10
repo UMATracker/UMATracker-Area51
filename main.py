@@ -137,6 +137,13 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.upRegionButton.clicked.connect(self.upRegionButtonClicked)
         self.downRegionButton.clicked.connect(self.downRegionButtonClicked)
 
+        self.radiusSpinBox.valueChanged.connect(self.radiusSpinBoxValueChanged)
+
+    def radiusSpinBoxValueChanged(self, i):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setRadius(i)
+        self.updateInputGraphicsView()
+
     def addRegionButtonClicked(self):
         if not self.videoPlaybackWidget.isOpened():
             return
@@ -424,6 +431,10 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                 return False
 
             self.videoPlaybackWidget.show()
+            self.cv_img = self.videoPlaybackWidget.getCurrentFrame()
+
+            self.initialize()
+
             return True
 
     def openCSVFile(self, activated=False, filePath=None):
@@ -443,8 +454,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
             self.trackingPathGroup.setDataFrame(self.df)
 
-            self.evaluate()
-
+            self.initialize()
 
     def updateInputGraphicsView(self):
         self.inputScene.removeItem(self.inputPixMapItem)
@@ -505,8 +515,8 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         progress.setWindowModality(Qt.WindowModal)
 
         interactions = [0 for i in range(int(nCr(col_n, 2)))]
-        radius = self.trackingPathGroup.getRadius()
-        radius = 100
+        radius = 2*self.trackingPathGroup.getRadius()
+        # radius = 100
 
 
         for i, row in enumerate(df.index):
@@ -607,6 +617,14 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             pd.DataFrame(self.relation_matrix).to_csv(filePath)
 
         self.savedFlag = True
+
+    def initialize(self):
+        if self.df is None or not self.videoPlaybackWidget.isOpened():
+            return
+
+        self.trackingPathGroup.setPoints(self.currentFrameNo)
+        r = self.trackingPathGroup.autoAdjustRadius(self.cv_img.shape)
+        self.radiusSpinBox.setValue(r)
 
     def evaluate(self, update=True):
         if self.df is None or not self.videoPlaybackWidget.isOpened():

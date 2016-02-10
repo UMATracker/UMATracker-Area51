@@ -24,6 +24,7 @@ class TrackingPathGroup(QGraphicsObject):
         self.currentFrameNo = 0
         self.overlayFrameNo = 1
         self.radius = 1.0
+        self.lineWidth = 5
 
     def setDataFrame(self, df):
         self.df = df
@@ -136,3 +137,25 @@ class TrackingPathGroup(QGraphicsObject):
 
     def paint(self, painter, option, widget):
         pass
+
+    def setLineWidth(self, w):
+        self.lineWidth = w
+        for item in self.itemList:
+            item.setLineWidth(w)
+
+    def getLineWidth(self):
+        return self.lineWidth
+
+    def autoAdjustLineWidth(self, shape):
+        # TODO: かなり適当
+        m = np.max(shape)
+        lw = max(int(5*m/600), 1)
+        self.setLineWidth(lw)
+        return self.getLineWidth()
+
+    def autoAdjustRadius(self, shape):
+        # TODO: かなり適当
+        m = np.max(shape)
+        r = max(float(5.0*m/600), 5.0)
+        self.setRadius(r)
+        return int(self.getRadius())
