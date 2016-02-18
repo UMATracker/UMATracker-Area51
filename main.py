@@ -57,7 +57,10 @@ import math
 
 def nCr(n,r):
     f = math.factorial
-    return f(n) / f(r) / f(n-r)
+    if r>n:
+        return 1
+    else:
+        return f(n) / f(r) / f(n-r)
 
 def get_interval(data):
     ranges = []
