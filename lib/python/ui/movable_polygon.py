@@ -5,6 +5,7 @@ from PyQt5.QtCore import QPoint, QPointF, QRectF, Qt, pyqtSignal
 
 import numpy as np
 from scipy.spatial import ConvexHull
+from shapely.geometry import Polygon, Point
 
 import copy
 
@@ -30,6 +31,10 @@ class MovablePolygonVertex(QGraphicsObject):
 
         self._boundingRect = QRectF()
         self._rect = QRectF()
+
+    def setColor(self, color):
+        self.color = QColor(color)
+        self.color.setAlpha(32)
 
     def setPoints(self, ps):
         self.points.clear()
@@ -147,13 +152,23 @@ class MovablePolygon(MovablePolygonVertex):
     def __init__(self, parent=None):
         super(MovablePolygon, self).__init__(parent)
 
+    def includes(self, pt):
+        poly = Polygon(((point.x(), point.y()) for point in self.points))
+        return poly.contains(Point(pt))
+
     def draw(self, painter, option, widget, rect):
         if len(self.points) != 0:
             painter.setPen(QtGui.QPen(QtCore.Qt.red, 0, QtCore.Qt.DashLine))
             # hull = ConvexHull([[p.x(), p.y()] for p in self.points])
             # polygon = QPolygonF([self.points[i] for i in hull.vertices])
             polygon = QPolygonF(self.points)
+
+            painter.setBrush(QtGui.QBrush(self.color))
+            painter.setPen(QtCore.Qt.NoPen)
             painter.drawConvexPolygon(polygon)
+            painter.setPen(QtGui.QPen(QtCore.Qt.black, 0, QtCore.Qt.DashLine))
+            painter.drawConvexPolygon(polygon)
+
             painter.setPen(QtGui.QPen(QtCore.Qt.black, 0, QtCore.Qt.SolidLine))
             painter.setBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
 

@@ -281,10 +281,17 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                 changed_item.setData(Qt.UserRole, new_type)
 
                 height, width, dim = self.cv_img.shape
-                if new_type is not FigureType.Point:
-                    array = [[0.1*width, 0.1*height], [0.9*width, 0.9*height]]
-                else:
+                if new_type is FigureType.Point:
                     array = np.array([0.5*width, 0.5*height])
+                elif new_type is FigureType.Polygon:
+                    array = [
+                            [0.1*width, 0.1*height],
+                            [0.9*width, 0.1*height],
+                            [0.9*width, 0.9*height],
+                            [0.1*width, 0.9*height]
+                            ]
+                else:
+                    array = [[0.1*width, 0.1*height], [0.9*width, 0.9*height]]
                 new_fig.setPoints(array)
 
         self.updateInputGraphicsView()

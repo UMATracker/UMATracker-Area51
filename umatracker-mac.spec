@@ -22,7 +22,8 @@ lib_path_list = [
         '/usr/local/Cellar/ffmpeg/',
         '/usr/local/Cellar/x264/',
         '/usr/local/Cellar/lame/',
-        '/usr/local/Cellar/libvo-aacenc/'
+        '/usr/local/Cellar/libvo-aacenc/',
+        '/usr/local/Cellar/geos'
         ]
 
 for lib_path in lib_path_list:

@@ -86,7 +86,7 @@ class ColorListItemEditorCreator(QItemEditorCreatorBase):
 class FigureType(Enum):
     Recutangular = ResizableRect
     Ellipse = ResizableEllipse
-    # Polygon = MovablePolygon
+    Polygon = MovablePolygon
     Point = MovablePoint
 
 class FigureListEditor(QComboBox):
