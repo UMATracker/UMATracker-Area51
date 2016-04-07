@@ -43,11 +43,12 @@ class TrackingPathGroup(QGraphicsObject):
                 del item
         self.itemList.clear()
 
-        for rgb in self.colors:
+        for i, rgb in enumerate(self.colors):
             trackingPath = TrackingPath(self)
             trackingPath.setRect(scene.sceneRect())
             trackingPath.setColor(rgb)
             trackingPath.itemSelected.connect(self.itemSelected)
+            trackingPath.setText(str(i))
 
             self.itemList.append(trackingPath)
 
@@ -59,7 +60,7 @@ class TrackingPathGroup(QGraphicsObject):
                 removedItem = self.selectedItemList.pop(0)
                 removedItem.selected = False
                 removedItem.itemType = QGraphicsEllipseItem
-                removedItem.setPoints()
+                removedItem.updateLine()
         else:
             try:
                 self.selectedItemList.remove(item)
@@ -87,12 +88,12 @@ class TrackingPathGroup(QGraphicsObject):
         array1[:, :] = tmp
 
         for item in self.selectedItemList:
-            item.setPoints()
+            item.updateLine()
 
-    def setDrawItem(self, pos, flag):
+    def setDrawItem(self, flag):
         self.drawItemFlag = flag
         for item in self.itemList:
-            item.setDrawItem(pos, flag)
+            item.setDrawItem(flag)
 
     def setDrawLine(self, flag):
         self.drawLineFlag = flag
@@ -106,7 +107,7 @@ class TrackingPathGroup(QGraphicsObject):
 
     def setOverlayFrameNo(self, n):
         self.overlayFrameNo = n
-        self.setPoints()
+        self.updateLine()
 
     def setPoints(self, frameNo=None):
         if frameNo is not None:
@@ -117,11 +118,10 @@ class TrackingPathGroup(QGraphicsObject):
 
         for i, item in enumerate(self.itemList):
             array = self.df.loc[min_value:max_value, i].as_matrix()
-            flags = np.full(len(array), False, dtype=np.bool)
-            if self.drawItemFlag and pos < len(array):
-                flags[pos] = True
+            if pos not in range(len(array)):
+                pos = None
 
-            item.setPoints(array, flags)
+            item.setPoints(array, pos)
 
     def getRadius(self):
         return self.radius
