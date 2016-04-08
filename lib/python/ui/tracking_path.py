@@ -2,10 +2,14 @@ from .graphics_text_item_with_background import GraphicsTextItemWithBackground
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsTextItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QGraphicsRectItem, QFrame, QFileDialog, QPushButton, QGraphicsObject
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QPolygonF, QColor
+from PyQt5.QtSvg import QGraphicsSvgItem
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QPolygonF, QColor, QPen, QTransform
 from PyQt5.QtCore import QPoint, QPointF, QRectF, Qt, pyqtSignal, QObject
 
 import numpy as np
+
+from itertools import chain
+import os
 
 
 class TrackingPath(QGraphicsObject):
@@ -16,6 +20,7 @@ class TrackingPath(QGraphicsObject):
         self.setZValue(10)
         self.polygon = QPolygonF()
         self.radius = 5.0
+        self.lineWidth = 1.0
         self.itemList = []
         self.rect = QRectF()
         self.color = QColor(255,0,0)
@@ -26,6 +31,7 @@ class TrackingPath(QGraphicsObject):
 
         self.drawLineFlag = True
         self.drawItemFlag = True
+        self.drawMarkItemFlag = False
         self.selected = False
 
         self.itemPos = None
@@ -34,11 +40,21 @@ class TrackingPath(QGraphicsObject):
 
         self.itemType = QGraphicsEllipseItem
         self.item = self.itemType(self)
+        self.item.setZValue(10)
         self.isItemMovable = False
+
+        self.markDelta = 1800
+        self.markItemList = []
+        self.markTextItemList = []
 
         self.textItem = GraphicsTextItemWithBackground(self)
         self.textItem.setBackgroundColor(Qt.white)
+        self.textItem.setZValue(9)
         self.textItem.hide()
+
+    def setMarkDelta(self, delta):
+        self.markDelta = delta
+        self.updateLine()
 
     def setText(self, text):
         self.textItem.setPlainText(text)
@@ -61,21 +77,38 @@ class TrackingPath(QGraphicsObject):
         self.drawLineFlag = flag
 
     def setDrawItem(self, flag):
+        self.drawItemFlag = flag
         if flag:
             self.item.show()
+            self.textItem.show()
         else:
             self.item.hide()
+            self.textItem.hide()
+
+    def setDrawMarkItem(self, flag):
+        self.drawMarkItemFlag = flag
+        if flag:
+            for markItem, markTextItem in zip(self.markItemList, self.markTextItemList):
+                markItem.show()
+                markTextItem.show()
+        else:
+            for markItem, markTextItem in zip(self.markItemList, self.markTextItemList):
+                markItem.hide()
+                markTextItem.hide()
 
     def setRadius(self, r):
         self.radius = r
+        diameter = 2*self.radius
 
-        radii = 2*self.radius
-        rect = QRectF(-self.radius, -self.radius, radii, radii)
-
+        rect = QRectF(-self.radius, -self.radius, diameter, diameter)
         self.item.setRect(rect)
 
+        rect_half = QRectF(-self.radius/2, -self.radius/2, diameter/2, diameter/2)
+        for markItem in self.markItemList:
+            markItem.setRect(rect_half)
+
     def setColor(self, rgb):
-        self.color = QColor(*rgb)
+        self.color = rgb
         self.item.setBrush(self.color)
 
     def getRadius(self):
@@ -96,25 +129,82 @@ class TrackingPath(QGraphicsObject):
                 point = self.points[self.itemPos]
 
                 if not isinstance(self.item, self.itemType):
+                    print("call")
                     scene = self.scene()
                     if scene is not None:
                         scene.removeItem(self.item)
 
                     self.item = self.itemType(self)
+                    self.item.setZValue(10)
                     self.item.setBrush(self.color)
                     self.item.setRect(rect)
-                    self.item.mouseMoveEvent = self.generateItemMouseMoveEvent(self.item, point)
-                    self.item.mousePressEvent = self.generateItemMousePressEvent(self.item, point)
                     self.setItemIsMovable(self.isItemMovable)
 
-                else:
+                elif self.drawItemFlag:
                     self.item.show()
 
                 self.item.setPos(*point)
+                self.item.mouseMoveEvent = self.generateItemMouseMoveEvent(self.item, point)
+                self.item.mousePressEvent = self.generateItemMousePressEvent(self.item, point)
+
                 self.textItem.setPos(*point)
 
             else:
                 self.item.hide()
+
+            prev_range = range(self.itemPos, -1, -self.markDelta)[1:]
+            next_range = range(self.itemPos, len(self.points), self.markDelta)[1:]
+            num_mark = len(prev_range) + len(next_range)
+
+            rect_half = QRectF(-self.radius/2, -self.radius/2, diameter/2, diameter/2)
+            while num_mark < len(self.markItemList) and len(self.markItemList)!=0:
+                markItem = self.markItemList.pop()
+                markTextItem = self.markTextItemList.pop()
+                scene = self.scene()
+                if scene is not None:
+                    scene.removeItem(markItem)
+                    scene.removeItem(markTextItem)
+
+            current_path = os.path.dirname(os.path.realpath(__file__))
+            while len(self.markItemList) < num_mark:
+                # TODO: 目盛りを矢印に．
+                # markItem = QGraphicsSvgItem(os.path.join(current_path, "svg", "small_arrow.svg"), self)
+                markItem = QGraphicsRectItem(self)
+                markItem.setBrush(Qt.black)
+                markItem.setRect(rect_half)
+                markItem.setZValue(9)
+
+                # markItem.setFlags(QGraphicsItem.ItemIgnoresParentOpacity)
+                # markItem.setOpacity(1)
+
+                # print(markItem.boundingRect())
+                # xlate = markItem.boundingRect().center()
+                # t = QTransform()
+                # # t.translate(xlate.x(), xlate.y())
+                # t.rotate(90)
+                # t.scale(0.03, 0.03)
+                # # t.translate(-xlate.x(), -xlate.y())
+                # markItem.setTransform(t)
+
+                self.markItemList.append(markItem)
+
+                markTextItem = GraphicsTextItemWithBackground(self)
+                markTextItem.setBackgroundColor(Qt.black)
+                markTextItem.setDefaultTextColor(Qt.white)
+                self.markTextItemList.append(markTextItem)
+
+            for markItem, markTextItem, index in zip(self.markItemList, self.markTextItemList, chain(prev_range, next_range)):
+                markItem.setPos(*self.points[index])
+
+                markTextItem.setPos(*self.points[index])
+                markTextItem.setPlainText(str(int((index-self.itemPos)/self.markDelta)))
+
+                if self.drawMarkItemFlag:
+                    markItem.show()
+                    markTextItem.show()
+                else:
+                    markItem.hide()
+                    markTextItem.hide()
 
             self.update()
 
@@ -122,13 +212,8 @@ class TrackingPath(QGraphicsObject):
         self.isItemMovable = flag
         if self.isItemMovable:
             self.item.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemSendsScenePositionChanges)
-            # self.item.setAcceptHoverEvents(False)
-            # self.item.mouseMoveEvent = self.generateItemMouseMoveEvent(self.item, point)
-            # self.item.mousePressEvent = self.generateItemMousePressEvent(self.item, point)
         else:
             self.item.setFlags(0)
-            # self.item.mouseMoveEvent = self.itemType().mouseMoveEvent
-            # self.item.mousePressEvent = self.itemType().mousePressEvent
 
     def setRect(self, rect):
         self.rect = rect
@@ -165,7 +250,10 @@ class TrackingPath(QGraphicsObject):
         if self.points is not None and self.drawLineFlag:
             painter.save()
 
-            painter.setPen(self.color)
+            pen = QPen(self.color)
+            pen.setWidthF(self.lineWidth)
+
+            painter.setPen(pen)
             qPoints = [QPointF(*p.tolist()) for p in self.points]
             polygon = QPolygonF(qPoints)
             painter.drawPolyline(polygon)

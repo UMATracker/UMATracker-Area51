@@ -1,4 +1,5 @@
 from .tracking_path import TrackingPath
+from .color_selector_dialog import ColorSelectorDialog
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QFrame, QFileDialog, QPushButton, QGraphicsObject, QMenu, QAction
@@ -15,6 +16,7 @@ class TrackingPathGroup(QGraphicsObject):
         self.setZValue(10)
         self.drawItemFlag = True
         self.drawLineFlag = True
+        self.areItemsMovable = False
         self.df = None
         self.itemList = []
         self.selectedItemList = []
@@ -35,6 +37,7 @@ class TrackingPathGroup(QGraphicsObject):
         self.df.columns = pd.MultiIndex.from_tuples(tuple(zip(*index)))
 
         self.colors = np.random.randint(0, 255, (shape[1]/2, 3)).tolist()
+        self.colors = [QColor(*rgb) for rgb in self.colors]
 
         scene = self.scene()
         if scene is not None:
@@ -90,10 +93,18 @@ class TrackingPathGroup(QGraphicsObject):
         for item in self.selectedItemList:
             item.updateLine()
 
+    def setMarkDelta(self, delta):
+        for item in self.itemList:
+            item.setMarkDelta(delta)
+
     def setDrawItem(self, flag):
         self.drawItemFlag = flag
         for item in self.itemList:
             item.setDrawItem(flag)
+
+    def setDrawMarkItem(self, flag):
+        for item in self.itemList:
+            item.setDrawMarkItem(flag)
 
     def setDrawLine(self, flag):
         self.drawLineFlag = flag
@@ -107,7 +118,13 @@ class TrackingPathGroup(QGraphicsObject):
 
     def setOverlayFrameNo(self, n):
         self.overlayFrameNo = n
-        self.updateLine()
+        self.setPoints()
+
+    def setItemsAreMovable(self, flag):
+        self.areItemsMovable = flag
+
+        for item in self.itemList:
+            item.setItemIsMovable(flag)
 
     def setPoints(self, frameNo=None):
         if frameNo is not None:
@@ -149,7 +166,7 @@ class TrackingPathGroup(QGraphicsObject):
     def autoAdjustLineWidth(self, shape):
         # TODO: かなり適当
         m = np.max(shape)
-        lw = max(int(5*m/600), 1)
+        lw = max(float(2.5*m/600), 1.0)
         self.setLineWidth(lw)
         return self.getLineWidth()
 
@@ -159,3 +176,16 @@ class TrackingPathGroup(QGraphicsObject):
         r = max(float(5.0*m/600), 5.0)
         self.setRadius(r)
         return int(self.getRadius())
+
+    def openColorSelectorDialog(self, parent):
+        dialog = ColorSelectorDialog(parent)
+
+        for i, rgb in enumerate(self.colors):
+            dialog.addRow(i, rgb)
+        dialog.colorChanged.connect(self.changeTrackingPathColor)
+        dialog.show()
+
+    @pyqtSlot(int, QColor)
+    def changeTrackingPathColor(self, i, color):
+        self.colors[i] = color
+        self.itemList[i].setColor(color)

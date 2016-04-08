@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\main_window_base.ui'
+# Form implementation generated from reading ui file 'main_window_base.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
@@ -87,12 +87,14 @@ class Ui_MainWindowBase(object):
         self.horizontalLayout.addWidget(self.groupBox)
         MainWindowBase.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindowBase)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 22))
         self.menubar.setObjectName("menubar")
         self.menuFiles = QtWidgets.QMenu(self.menubar)
         self.menuFiles.setObjectName("menuFiles")
         self.menuRun = QtWidgets.QMenu(self.menubar)
         self.menuRun.setObjectName("menuRun")
+        self.menuSettings = QtWidgets.QMenu(self.menubar)
+        self.menuSettings.setObjectName("menuSettings")
         MainWindowBase.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindowBase)
         self.statusbar.setObjectName("statusbar")
@@ -119,6 +121,8 @@ class Ui_MainWindowBase(object):
         self.actionCalculate.setObjectName("actionCalculate")
         self.actionSaveCSVFile = QtWidgets.QAction(MainWindowBase)
         self.actionSaveCSVFile.setObjectName("actionSaveCSVFile")
+        self.actionTrackingPathColor = QtWidgets.QAction(MainWindowBase)
+        self.actionTrackingPathColor.setObjectName("actionTrackingPathColor")
         self.menuFiles.addAction(self.actionOpenVideo)
         self.menuFiles.addSeparator()
         self.menuFiles.addAction(self.actionOpenCSVFile)
@@ -126,8 +130,10 @@ class Ui_MainWindowBase(object):
         self.menuFiles.addSeparator()
         self.menuFiles.addAction(self.actionQuit)
         self.menuRun.addAction(self.actionCalculate)
+        self.menuSettings.addAction(self.actionTrackingPathColor)
         self.menubar.addAction(self.menuFiles.menuAction())
         self.menubar.addAction(self.menuRun.menuAction())
+        self.menubar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(MainWindowBase)
         self.actionQuit.triggered.connect(MainWindowBase.close)
@@ -144,6 +150,7 @@ class Ui_MainWindowBase(object):
         self.label.setText(_translate("MainWindowBase", "Radius"))
         self.menuFiles.setTitle(_translate("MainWindowBase", "Files"))
         self.menuRun.setTitle(_translate("MainWindowBase", "Run"))
+        self.menuSettings.setTitle(_translate("MainWindowBase", "Settings"))
         self.actionOpenVideo.setText(_translate("MainWindowBase", "Open Video"))
         self.actionOpenImage.setText(_translate("MainWindowBase", "Open Image"))
         self.actionOpenBlockData.setText(_translate("MainWindowBase", "Open Block Data"))
@@ -156,5 +163,6 @@ class Ui_MainWindowBase(object):
         self.actionEnable_Disable.setText(_translate("MainWindowBase", "Enable/Disable"))
         self.actionCalculate.setText(_translate("MainWindowBase", "Calculate"))
         self.actionSaveCSVFile.setText(_translate("MainWindowBase", "Save CSV"))
+        self.actionTrackingPathColor.setText(_translate("MainWindowBase", "Tracking Path Color"))
 
 from .video_playback_widget import VideoPlaybackWidget

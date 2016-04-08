@@ -151,7 +151,7 @@
      <x>0</x>
      <y>0</y>
      <width>813</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFiles">
@@ -171,8 +171,15 @@
     </property>
     <addaction name="actionCalculate"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionTrackingPathColor"/>
+   </widget>
    <addaction name="menuFiles"/>
    <addaction name="menuRun"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpenVideo">
@@ -231,6 +238,11 @@
   <action name="actionSaveCSVFile">
    <property name="text">
     <string>Save CSV</string>
+   </property>
+  </action>
+  <action name="actionTrackingPathColor">
+   <property name="text">
+    <string>Tracking Path Color</string>
    </property>
   </action>
  </widget>

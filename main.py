@@ -392,6 +392,10 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         else:
             event.ignore()
 
+    def openTrackingPathColorSelectorDialog(self, activated=False):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.openColorSelectorDialog(self)
+
     def processDropedFile(self,filePath):
         root,ext = os.path.splitext(filePath)
         if ext == ".csv":
@@ -427,6 +431,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.actionOpenCSVFile.triggered.connect(self.openCSVFile)
         self.actionSaveCSVFile.triggered.connect(self.saveCSVFile)
         self.actionCalculate.triggered.connect(self.process)
+        self.actionTrackingPathColor.triggered.connect(self.openTrackingPathColorSelectorDialog)
 
     def openVideoFile(self, activated=False, filePath = None):
         if filePath is None:
