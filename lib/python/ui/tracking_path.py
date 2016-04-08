@@ -256,7 +256,7 @@ class TrackingPath(QGraphicsObject):
             pen.setWidthF(self.lineWidth)
 
             painter.setPen(pen)
-            qPoints = [QPointF(*p.tolist()) for p in self.points]
+            qPoints = [QPointF(*p.tolist()) for p in self.points if not np.isnan(p).any()]
             polygon = QPolygonF(qPoints)
             painter.drawPolyline(polygon)
 
