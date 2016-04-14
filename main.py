@@ -569,7 +569,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             left_axis = plot_item.getAxis("left")
             left_axis.setLabel("Distance [pixel]")
             for col, color in zip(range(col_n), self.trackingPathGroup.getColors()):
-                pen = QPen(QColor(*color))
+                pen = QPen(QColor(color))
                 pen.setWidth(5)
                 plot_widget.plot(self.df_dist.loc[:, "{0}_{1}".format(name, col)], pen=pen, name=str(col))
 
