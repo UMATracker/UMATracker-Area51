@@ -66,7 +66,7 @@ class ChordDiagramDialog(Ui_JSPlotDialog, QDialog):
         self.matrix = mtx
 
     def setColors(self, clr):
-        self.colors = [QColor(*rgb).name() for rgb in clr]
+        self.colors = [QColor(rgb).name() for rgb in clr]
 
     def show(self):
         self.webView.load(QUrl(d3_url))
