@@ -615,6 +615,17 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         dirctory = os.path.dirname(self.filePath)
         base_name = os.path.splitext(os.path.basename(self.filePath))[0]
 
+        path = os.path.join(dirctory, '{0}-info.txt'.format(base_name))
+        filePath, _ = QFileDialog.getSaveFileName(None, 'Save TXT File', path, "TXT files (*.txt)")
+        names = list(map(lambda x: x.data(Qt.UserRole), self.getCol(0)))
+        items = [self.graphics_items[name] for name in names]
+        point_list = list(filter(lambda x:type(x[1]) is FigureType.Point.value, zip(names, items)))
+        if len(filePath) is not 0 and len(point_list) is not 0:
+            logger.debug("Saving CSV file: {0}".format(filePath))
+            with open(filePath, "w") as fp:
+                for name, item in point_list:
+                    fp.write('{0} : {1}'.format(name, item.getPoints()))
+
         for attr in ['distance', 'region']:
             path = os.path.join(dirctory, '{0}-{1}.csv'.format(base_name, attr))
             filePath, _ = QFileDialog.getSaveFileName(None, 'Save CSV File', path, "CSV files (*.csv)")
