@@ -40,11 +40,6 @@ elif __file__:
     current_dir_path = os.getcwd()
 
 import urllib.request
-if os.path.exists(os.path.join(current_dir_path, "index.html")):
-    d3_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, "index.html"))
-else:
-    d3_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, 'lib', 'd3', "index.html"))
-
 relation_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, 'lib', 'html', 'relation', "index.html"))
 timeline_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, 'lib', 'html', 'timeline', "index.html"))
 
