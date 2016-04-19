@@ -40,10 +40,9 @@ elif __file__:
     current_dir_path = os.getcwd()
 
 import urllib.request
-if os.path.exists(os.path.join(current_dir_path, "index.html")):
-    d3_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, "index.html"))
-else:
-    d3_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, 'lib', 'd3', "index.html"))
+relation_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, 'lib', 'html', 'relation', "index.html"))
+timeline_url = "file:" + urllib.request.pathname2url(os.path.join(current_dir_path, 'lib', 'html', 'timeline', "index.html"))
+
 
 class ChordDiagramDialog(Ui_JSPlotDialog, QDialog):
     def __init__(self, parent=None):
@@ -51,7 +50,7 @@ class ChordDiagramDialog(Ui_JSPlotDialog, QDialog):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.webView.loadFinished.connect(self.draw)
-        self.webView.load(QUrl(d3_url))
+        self.webView.load(QUrl(relation_url))
 
         self.matrix = [
                 [11975,  5871, 8916, 2868],
@@ -69,7 +68,7 @@ class ChordDiagramDialog(Ui_JSPlotDialog, QDialog):
         self.colors = [QColor(rgb).name() for rgb in clr]
 
     def show(self):
-        self.webView.load(QUrl(d3_url))
+        self.webView.load(QUrl(relation_url))
         QDialog.show(self)
 
     def draw(self, flag):
@@ -86,7 +85,7 @@ class TimelineDiagramDialog(Ui_JSPlotDialog, QDialog):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.webView.loadFinished.connect(self.draw)
-        self.webView.load(QUrl(d3_url))
+        self.webView.load(QUrl(timeline_url))
 
         self.tasks = [
                 {
@@ -129,7 +128,7 @@ class TimelineDiagramDialog(Ui_JSPlotDialog, QDialog):
         self.colors = [clr[name].name() for name in self.statusNames]
 
     def show(self):
-        self.webView.load(QUrl(d3_url))
+        self.webView.load(QUrl(timeline_url))
         QDialog.show(self)
 
     def draw(self, flag):
