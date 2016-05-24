@@ -74,7 +74,6 @@ def get_interval(data):
 
 
 class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
-    updateFrame = pyqtSignal()
 
     def __init__(self):
         super(Ui_MainWindow, self).__init__()
@@ -99,8 +98,6 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         factory.registerEditor(QVariant.Color, ColorListItemEditorCreator())
 
         self.createGUI()
-
-        self.updateFrame.connect(self.videoPlaybackWidget.videoPlayback)
 
         self.chord_diagram_dialog = ChordDiagramDialog(self)
         self.timeline_diagram_dialog = TimelineDiagramDialog(self)
@@ -496,6 +493,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.plot_widgets.clear()
 
     def process(self, activated=False):
+        # TODO: 分割．
         # if self.df is None or len(self.getCol(0))==0:
         #     return
 
@@ -546,6 +544,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                 for name, item in point_list:
                     self.df_dist.loc[row, "{0}_{1}".format(name, col)] = item.distance(pt)
                 for name, item in region_list:
+                    # TODO: 領域がかぶったときの挙動がアヤシい．要チェック．
                     if item.includes(pt):
                         self.df_region.loc[row, col] = name
                         break
@@ -658,9 +657,6 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         else:
             if self.trackingPathGroup is not None:
                 self.trackingPathGroup.setPoints(self.currentFrameNo)
-
-        if update:
-            self.updateFrame.emit()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
