@@ -139,6 +139,37 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
         self.radiusSpinBox.valueChanged.connect(self.radiusSpinBoxValueChanged)
 
+        self.actionCoordinates.triggered.connect(self.setCoordinatesVisible)
+        self.actionPoints.triggered.connect(self.setPointsVisible)
+        self.actionRegions.triggered.connect(self.setRegionsVisible)
+
+    def setCoordinatesVisible(self, checked):
+        for item in self.graphics_items.values():
+            item_type = type(item)
+            if item_type==MovablePoint or item_type==MovablePolygon:
+                if checked:
+                    item.showCoordinate()
+                else:
+                    item.hideCoordinate()
+
+    def setPointsVisible(self, checked):
+        for item in self.graphics_items.values():
+            item_type = type(item)
+            if item_type==MovablePoint:
+                if checked:
+                    item.show()
+                else:
+                    item.hide()
+
+    def setRegionsVisible(self, checked):
+        for item in self.graphics_items.values():
+            item_type = type(item)
+            if item_type==MovablePolygon or item_type==ResizableEllipse or item_type==ResizableRect:
+                if checked:
+                    item.show()
+                else:
+                    item.hide()
+
     def radiusSpinBoxValueChanged(self, i):
         if self.trackingPathGroup is not None:
             self.trackingPathGroup.setRadius(i)
