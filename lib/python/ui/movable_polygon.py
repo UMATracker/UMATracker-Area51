@@ -9,6 +9,8 @@ from shapely.geometry import Polygon, Point
 
 import copy
 
+from .graphics_text_item_with_background import GraphicsTextItemWithBackground
+
 
 class MovablePolygonVertex(QGraphicsObject):
     geometryChange = pyqtSignal(object)
@@ -27,6 +29,7 @@ class MovablePolygonVertex(QGraphicsObject):
 
         self.buttonList = []
         self.points = []
+        self.textItemList = []
         self.setFocus(Qt.ActiveWindowFocusReason)
 
         self._boundingRect = QRectF()
@@ -38,8 +41,19 @@ class MovablePolygonVertex(QGraphicsObject):
 
     def setPoints(self, ps):
         self.points.clear()
+        self.textItemList.clear()
         for point in ps:
             self.points.append(QPointF(*point))
+
+            textItem = GraphicsTextItemWithBackground(self)
+            textItem.setBackgroundColor(Qt.white)
+            textItem.setZValue(9)
+
+            textItem.setPlainText('({0:.1f}, {1:.1f})'.format(*point))
+            textItem.setPos(*point)
+
+            self.textItemList.append(textItem)
+
         self.updateResizeHandles()
 
     def setRect(self):
@@ -47,6 +61,14 @@ class MovablePolygonVertex(QGraphicsObject):
         rect = polygon.boundingRect()
         self._rect = rect
         self._boundingRect = rect
+
+    def showCoordinate(self):
+        for item in self.textItemList:
+            item.show()
+
+    def hideCoordinate(self):
+        for item in self.textItemList:
+            item.hide()
 
     def prepareGeometryChange(self):
         self.geometryChange.emit([[p.x(), p.y()] for p in self.points])
@@ -110,15 +132,25 @@ class MovablePolygonVertex(QGraphicsObject):
     def mouseMoveEvent(self, event):
         mouseMovePos = event.scenePos()
         if self.isMousePressed:
+            # TODO: 重複あり，要修正．
             if self.pressedRectPos is None:
-                for i, point in enumerate(self.points):
-                    newPos = self.originalPoints[i] + (mouseMovePos - self.mousePressedPos)
+                for point, original_point, textItem in zip(self.points, self.originalPoints, self.textItemList):
+                    newPos = original_point + (mouseMovePos - self.mousePressedPos)
                     point.setX(newPos.x())
                     point.setY(newPos.y())
+
+                    textItem.setPlainText('({0:.1f}, {1:.1f})'.format(point.x(), point.y()))
+                    textItem.setPos(point)
             else:
                 newPos = self.originalPoints[self.pressedRectPos] + (mouseMovePos - self.mousePressedPos)
-                self.points[self.pressedRectPos].setX(newPos.x())
-                self.points[self.pressedRectPos].setY(newPos.y())
+                point = self.points[self.pressedRectPos]
+                point.setX(newPos.x())
+                point.setY(newPos.y())
+
+                textItem = self.textItemList[self.pressedRectPos]
+                textItem.setPlainText('({0:.1f}, {1:.1f})'.format(point.x(), point.y()))
+                textItem.setPos(point)
+
         self.updateResizeHandles()
         self.prepareGeometryChange()
 
@@ -139,7 +171,7 @@ class MovablePolygonVertex(QGraphicsObject):
             )
 
         self.buttonList.clear()
-        for point in self.points:
+        for point, textItem in zip(self.points, self.textItemList):
             rect = QRectF(
                     point.x()-self.offset,
                     point.y()-self.offset,
@@ -147,6 +179,9 @@ class MovablePolygonVertex(QGraphicsObject):
                     2*self.offset
                 )
             self.buttonList.append(rect)
+
+            # textItem.setPlainText('({0:.1f}, {1:.1f})'.format(point.x(), point.y()))
+            # textItem.setPos(point)
 
 class MovablePolygon(MovablePolygonVertex):
     def __init__(self, parent=None):

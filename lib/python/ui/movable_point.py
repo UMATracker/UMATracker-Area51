@@ -1,9 +1,12 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QFrame, QFileDialog, QPushButton, QGraphicsObject, QGraphicsRectItem
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPolygonF, QColor, QPen
-from PyQt5.QtCore import QPoint, QPointF, QRectF
+from PyQt5.QtCore import QPoint, QPointF, QRectF, Qt
 import numpy as np
 import pandas as pd
+
+from .graphics_text_item_with_background import GraphicsTextItemWithBackground
+
 
 class MovablePoint(QGraphicsObject):
     def __init__(self, parent=None):
@@ -17,6 +20,10 @@ class MovablePoint(QGraphicsObject):
 
         self.points = np.array([0.,0.])
         self.item = self.itemType(self)
+
+        self.textItem = GraphicsTextItemWithBackground(self)
+        self.textItem.setBackgroundColor(Qt.white)
+        self.textItem.setZValue(9)
 
     def autoAdjustRadius(self, shape):
         # TODO: かなり適当
@@ -58,10 +65,19 @@ class MovablePoint(QGraphicsObject):
         self.item.mouseMoveEvent = self.generateItemMouseMoveEvent(self.item, self.points)
         self.item.mousePressEvent = self.generateItemMousePressEvent(self.item, self.points)
 
+        self.textItem.setPlainText('({0:.1f}, {1:.1f})'.format(*self.points))
+        self.textItem.setPos(*self.points)
+
         self.update()
 
     def setRect(self, rect):
         self.rect = rect
+
+    def showCoordinate(self):
+        self.textItem.show()
+
+    def hideCoordinate(self):
+        self.textItem.hide()
 
     def generateItemMouseMoveEvent(self, item, point):
         def itemMouseMoveEvent(event):
@@ -70,6 +86,8 @@ class MovablePoint(QGraphicsObject):
 
             point[0] = centerPos.x()
             point[1] = centerPos.y()
+            self.textItem.setPlainText('({0:.1f}, {1:.1f})'.format(*point))
+            self.textItem.setPos(*point)
             self.update()
         return itemMouseMoveEvent
 
