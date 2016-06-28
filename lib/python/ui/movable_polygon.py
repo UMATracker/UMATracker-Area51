@@ -207,3 +207,56 @@ class MovablePolygon(MovablePolygonVertex):
             painter.setPen(QtGui.QPen(QtCore.Qt.black, 0, QtCore.Qt.SolidLine))
             painter.setBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
 
+class MovableLine(MovablePolygonVertex):
+    def __init__(self, parent=None):
+        super(MovableLine, self).__init__(parent)
+
+        self.tmp_points = None
+
+    def setColor(self, color):
+        self.color = QColor(color)
+
+    def calcLineParams(self):
+        ps = np.array(
+                [
+                    [self.points[0].x(), self.points[0].y()],
+                    [self.points[1].x(), self.points[1].y()]
+                    ]
+                )
+        if np.all(self.tmp_points == ps):
+            pass
+        else:
+            self.tmp_points = ps
+
+            p0 = ps[0, :]
+            p1 = ps[1, :]
+
+            self.a = p1[1] - p0[1]
+            self.b = p0[0] - p1[0]
+            self.c = - (self.b*p0[1] + self.a*p0[0])
+            self.denominator = np.sqrt(self.a*self.a + self.b*self.b)
+
+    def distance(self, pt):
+        self.calcLineParams()
+        numerator = np.fabs(self.a*pt[0] + self.b*pt[1] + self.c)
+
+        return numerator/self.denominator
+
+    def setPoints(self, ps):
+        super(MovableLine, self).setPoints(ps)
+        self.calcLineParams()
+
+    def mouseReleaseEvent(self, event):
+        super(MovableLine, self).mouseReleaseEvent(event)
+        self.calcLineParams()
+
+    def draw(self, painter, option, widget, rect):
+        if len(self.points) != 0:
+            polygon = QPolygonF(self.points)
+
+            painter.setPen(QtGui.QPen(self.color, 2, QtCore.Qt.DashDotLine))
+            painter.drawConvexPolygon(polygon)
+
+            painter.setPen(QtGui.QPen(QtCore.Qt.black, 0, QtCore.Qt.SolidLine))
+            painter.setBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255)))
+

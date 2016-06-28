@@ -151,7 +151,7 @@
      <x>0</x>
      <y>0</y>
      <width>813</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFiles">
@@ -179,6 +179,7 @@
     <addaction name="separator"/>
     <addaction name="actionCoordinates"/>
     <addaction name="actionPoints"/>
+    <addaction name="actionLines"/>
     <addaction name="actionRegions"/>
    </widget>
    <addaction name="menuFiles"/>
@@ -221,7 +222,7 @@
   </action>
   <action name="actionOpenCSVFile">
    <property name="text">
-    <string>Open CSV</string>
+    <string>Open Data</string>
    </property>
   </action>
   <action name="actionCreateBackground">
@@ -241,7 +242,7 @@
   </action>
   <action name="actionSaveCSVFile">
    <property name="text">
-    <string>Save CSV</string>
+    <string>Save Data</string>
    </property>
   </action>
   <action name="actionTrackingPathColor">
@@ -280,6 +281,17 @@
    </property>
    <property name="text">
     <string>Regions</string>
+   </property>
+  </action>
+  <action name="actionLines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lines</string>
    </property>
   </action>
  </widget>

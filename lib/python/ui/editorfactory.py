@@ -51,7 +51,7 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QGridLayout,
 
 from enum import Enum
 from lib.python.ui.resizable_object import ResizableRect, ResizableEllipse
-from lib.python.ui.movable_polygon import MovablePolygon
+from lib.python.ui.movable_polygon import MovablePolygon, MovableLine
 from lib.python.ui.movable_point import MovablePoint
 
 class ColorListEditor(QComboBox):
@@ -88,6 +88,7 @@ class FigureType(Enum):
     Ellipse = ResizableEllipse
     Polygon = MovablePolygon
     Point = MovablePoint
+    Line = MovableLine
 
 class FigureListEditor(QComboBox):
     def __init__(self, widget=None):

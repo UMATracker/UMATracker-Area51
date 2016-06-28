@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main_window_base.ui'
+# Form implementation generated from reading ui file '.\main_window_base.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
@@ -87,7 +87,7 @@ class Ui_MainWindowBase(object):
         self.horizontalLayout.addWidget(self.groupBox)
         MainWindowBase.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindowBase)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 21))
         self.menubar.setObjectName("menubar")
         self.menuFiles = QtWidgets.QMenu(self.menubar)
         self.menuFiles.setObjectName("menuFiles")
@@ -135,6 +135,10 @@ class Ui_MainWindowBase(object):
         self.actionRegions.setCheckable(True)
         self.actionRegions.setChecked(True)
         self.actionRegions.setObjectName("actionRegions")
+        self.actionLines = QtWidgets.QAction(MainWindowBase)
+        self.actionLines.setCheckable(True)
+        self.actionLines.setChecked(True)
+        self.actionLines.setObjectName("actionLines")
         self.menuFiles.addAction(self.actionOpenVideo)
         self.menuFiles.addSeparator()
         self.menuFiles.addAction(self.actionOpenCSVFile)
@@ -146,6 +150,7 @@ class Ui_MainWindowBase(object):
         self.menuSettings.addSeparator()
         self.menuSettings.addAction(self.actionCoordinates)
         self.menuSettings.addAction(self.actionPoints)
+        self.menuSettings.addAction(self.actionLines)
         self.menuSettings.addAction(self.actionRegions)
         self.menubar.addAction(self.menuFiles.menuAction())
         self.menubar.addAction(self.menuSettings.menuAction())
@@ -174,14 +179,15 @@ class Ui_MainWindowBase(object):
         self.actionQuit.setText(_translate("MainWindowBase", "Quit"))
         self.actionQuit.setShortcut(_translate("MainWindowBase", "Ctrl+Q"))
         self.actionSaveFilterData.setText(_translate("MainWindowBase", "Save Filter Data"))
-        self.actionOpenCSVFile.setText(_translate("MainWindowBase", "Open CSV"))
+        self.actionOpenCSVFile.setText(_translate("MainWindowBase", "Open Data"))
         self.actionCreateBackground.setText(_translate("MainWindowBase", "Create"))
         self.actionEnable_Disable.setText(_translate("MainWindowBase", "Enable/Disable"))
         self.actionCalculate.setText(_translate("MainWindowBase", "Calculate"))
-        self.actionSaveCSVFile.setText(_translate("MainWindowBase", "Save CSV"))
+        self.actionSaveCSVFile.setText(_translate("MainWindowBase", "Save Data"))
         self.actionTrackingPathColor.setText(_translate("MainWindowBase", "Tracking Path Color"))
         self.actionCoordinates.setText(_translate("MainWindowBase", "Coordinates"))
         self.actionPoints.setText(_translate("MainWindowBase", "Points"))
         self.actionRegions.setText(_translate("MainWindowBase", "Regions"))
+        self.actionLines.setText(_translate("MainWindowBase", "Lines"))
 
 from .video_playback_widget import VideoPlaybackWidget

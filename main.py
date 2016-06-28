@@ -75,6 +75,9 @@ def get_interval(data):
 
 class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
+    has_coordinates_attr_list = (FigureType.Point, FigureType.Line, FigureType.Polygon)
+    is_region_list = (FigureType.Polygon, FigureType.Ellipse, FigureType.Recutangular)
+
     def __init__(self):
         super(Ui_MainWindow, self).__init__()
         self.setupUi(self)
@@ -141,12 +144,14 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
         self.actionCoordinates.triggered.connect(self.setCoordinatesVisible)
         self.actionPoints.triggered.connect(self.setPointsVisible)
+        self.actionLines.triggered.connect(self.setLinesVisible)
         self.actionRegions.triggered.connect(self.setRegionsVisible)
 
     def setCoordinatesVisible(self, checked):
         for item in self.graphics_items.values():
-            item_type = type(item)
-            if item_type==MovablePoint or item_type==MovablePolygon:
+            fig_type = FigureType(type(item))
+
+            if np.any([fig_type==t for t in self.has_coordinates_attr_list]):
                 if checked:
                     item.showCoordinate()
                 else:
@@ -154,8 +159,19 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
     def setPointsVisible(self, checked):
         for item in self.graphics_items.values():
-            item_type = type(item)
-            if item_type==MovablePoint:
+            fig_type = FigureType(type(item))
+
+            if fig_type==FigureType.Point:
+                if checked:
+                    item.show()
+                else:
+                    item.hide()
+
+    def setLinesVisible(self, checked):
+        for item in self.graphics_items.values():
+            fig_type = FigureType(type(item))
+
+            if fig_type==FigureType.Line:
                 if checked:
                     item.show()
                 else:
@@ -163,8 +179,8 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
     def setRegionsVisible(self, checked):
         for item in self.graphics_items.values():
-            item_type = type(item)
-            if item_type==MovablePolygon or item_type==ResizableEllipse or item_type==ResizableRect:
+            fig_type = FigureType(type(item))
+            if np.any([fig_type==t for t in self.is_region_list]):
                 if checked:
                     item.show()
                 else:
@@ -536,8 +552,18 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         names = list(map(lambda x: x.data(Qt.UserRole), self.getCol(0)))
         items = [self.graphics_items[name] for name in names]
         colors = {('no'+name):color.data(Qt.BackgroundRole) for name, color in zip(names, self.getCol(1))}
-        region_list = list(filter(lambda x:type(x[1]) is not FigureType.Point.value, zip(names, items)))
-        point_list = list(filter(lambda x:type(x[1]) is FigureType.Point.value, zip(names, items)))
+        region_list = list(
+                filter(
+                    lambda x:hasattr(x[1], 'includes'),
+                    zip(names, items)
+                    )
+                )
+        point_list = list(
+                filter(
+                    lambda x:hasattr(x[1], 'distance'),
+                    zip(names, items)
+                    )
+                )
 
         col_n = int(len(self.df.columns)/2)
         columns = ["{0}_{1}".format(name, col) for col in range(col_n) for name, _ in point_list]
@@ -591,17 +617,25 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             matrix[j, i] = interactions[pos]
 
         for name, item in point_list:
-            plot_widget = pg.plot(title="Point: "+name)
+            plot_widget = pg.plot(title="{0}: {1}".format(FigureType(type(item)).name, name))
             plot_widget.addLegend()
             plot_item = plot_widget.getPlotItem()
             bottom_axis = plot_item.getAxis("bottom")
             bottom_axis.setLabel("# of Frame")
             left_axis = plot_item.getAxis("left")
             left_axis.setLabel("Distance [pixel]")
+
+            y_max = 0
             for col, color in zip(range(col_n), self.trackingPathGroup.getColors()):
                 pen = QPen(QColor(color))
                 pen.setWidth(5)
-                plot_widget.plot(self.df_dist.loc[:, "{0}_{1}".format(name, col)], pen=pen, name=str(col))
+
+                plot_data = self.df_dist.loc[:, "{0}_{1}".format(name, col)]
+                plot_widget.plot(plot_data, pen=pen, name=str(col))
+
+                y_max = max(np.max(plot_data), y_max)
+
+            plot_item.setYRange(0, y_max)
 
             self.plot_widgets.append(plot_widget)
 
@@ -621,12 +655,13 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                     }
                     tasks.append(data)
 
-        self.chord_diagram_dialog.setMatrix(matrix.tolist())
-        self.chord_diagram_dialog.setColors(self.trackingPathGroup.getColors())
-        self.timeline_diagram_dialog.setTasks(tasks)
-        self.timeline_diagram_dialog.setColors(colors)
+        if np.any(matrix!=0):
+            self.chord_diagram_dialog.setMatrix(matrix.tolist())
+            self.chord_diagram_dialog.setColors(self.trackingPathGroup.getColors())
+            self.timeline_diagram_dialog.setTasks(tasks)
+            self.timeline_diagram_dialog.setColors(colors)
 
-        self.chord_diagram_dialog.show()
+            self.chord_diagram_dialog.show()
 
         if len(region_list)!=0:
             self.timeline_diagram_dialog.show()
@@ -646,15 +681,26 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         base_name = os.path.splitext(os.path.basename(self.filePath))[0]
 
         path = os.path.join(dirctory, '{0}-info.txt'.format(base_name))
+
         filePath, _ = QFileDialog.getSaveFileName(None, 'Save TXT File', path, "TXT files (*.txt)")
         names = list(map(lambda x: x.data(Qt.UserRole), self.getCol(0)))
         items = [self.graphics_items[name] for name in names]
-        point_list = list(filter(lambda x:type(x[1]) is FigureType.Point.value, zip(names, items)))
+        point_list = list(
+                filter(
+                    lambda x:hasattr(x[1], 'distance'),
+                    zip(names, items)
+                    )
+                )
+
         if len(filePath) is not 0 and len(point_list) is not 0:
             logger.debug("Saving CSV file: {0}".format(filePath))
             with open(filePath, "w") as fp:
                 for name, item in point_list:
-                    fp.write('{0} : {1}'.format(name, item.getPoints()))
+                    fig_type = FigureType(type(item))
+                    if fig_type == FigureType.Point:
+                        fp.write('Point {0} : {1}'.format(name, item.getPoints()))
+                    elif fig_type == FigureType.Line:
+                        fp.write('Line {0} : ({1})*x + ({2})*y + ({3}) = 0'.format(name, item.a, item.b, item.c))
 
         for attr in ['distance', 'region']:
             path = os.path.join(dirctory, '{0}-{1}.csv'.format(base_name, attr))
