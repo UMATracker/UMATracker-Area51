@@ -94,6 +94,18 @@ class FigureListEditor(QComboBox):
     def __init__(self, widget=None):
         super(FigureListEditor, self).__init__(widget)
 
+        region_items = []
+        dist_items = []
+        for i, fig in enumerate(FigureType):
+            if callable(getattr(fig.value, 'distance', None)):
+                dist_items.append(fig)
+            elif callable(getattr(fig.value, 'includes', None)):
+                region_items.append(fig)
+
+        self.items = region_items
+        self.items.append(None)
+        self.items += dist_items
+
         self.populateList()
 
     def getString(self):
@@ -106,8 +118,11 @@ class FigureListEditor(QComboBox):
     string = pyqtProperty(str, getString, setString, user=True)
 
     def populateList(self):
-        for i, fig in enumerate(FigureType):
-            self.insertItem(i, fig.name)
+        for i, fig in enumerate(self.items):
+            if fig is None:
+                self.insertSeparator(i)
+            else:
+                self.insertItem(i, fig.name)
 
 class FigureListItemEditorCreator(QItemEditorCreatorBase):
     def createWidget(self, parent):
