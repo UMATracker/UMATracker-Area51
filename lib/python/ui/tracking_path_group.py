@@ -10,21 +10,48 @@ import numpy as np
 import pandas as pd
 
 class TrackingPathGroup(QGraphicsObject):
+    kelly_colors = [
+        '#F2F3F4',
+        '#222222',
+        '#F3C300',
+        '#875692',
+        '#F38400',
+        '#A1CAF1',
+        '#BE0032',
+        '#C2B280',
+        '#848482',
+        '#008856',
+        '#E68FAC',
+        '#0067A5',
+        '#F99379',
+        '#604E97',
+        '#F6A600',
+        '#B3446C',
+        '#DCD300',
+        '#882D17',
+        '#8DB600',
+        '#654522',
+        '#E25822',
+        '#2B3D26'
+        ]
+    
     def __init__(self, parent=None):
         super(TrackingPathGroup, self).__init__(parent)
 
         self.setZValue(10)
         self.drawItemFlag = True
         self.drawLineFlag = True
+        self.drawMarkItemFlag = False
         self.areItemsMovable = False
         self.df = None
+        self.colors = None
         self.itemList = []
         self.selectedItemList = []
         self.rect = QRectF()
 
         self.num_items = 0
         self.currentFrameNo = 0
-        self.overlayFrameNo = 1
+        self.overlayFrameNo = 0
         self.radius = 1.0
         self.lineWidth = 5
 
@@ -32,12 +59,13 @@ class TrackingPathGroup(QGraphicsObject):
         self.df = df
         shape = self.df.shape
 
-        self.num_items = int(shape[1]/2)
-        index = (np.repeat(range(self.num_items), 2).tolist(), [0,1]*self.num_items)
-        self.df.columns = pd.MultiIndex.from_tuples(tuple(zip(*index)))
+        path_n = len(self.df.columns.levels[0])
 
-        self.colors = np.random.randint(0, 255, (shape[1]/2, 3)).tolist()
-        self.colors = [QColor(*rgb) for rgb in self.colors]
+        if path_n <= 22:
+            self.colors = [QColor(TrackingPathGroup.kelly_colors[i]) for i in range(path_n)]
+        else:
+            self.colors = np.random.randint(0, 255, (path_n, 3)).tolist()
+            self.colors = [QColor(*rgb) for rgb in self.colors]
 
         scene = self.scene()
         if scene is not None:
@@ -52,6 +80,10 @@ class TrackingPathGroup(QGraphicsObject):
             trackingPath.setColor(rgb)
             trackingPath.itemSelected.connect(self.itemSelected)
             trackingPath.setText(str(i))
+
+            trackingPath.setDrawItem(self.drawItemFlag)
+            trackingPath.setDrawLine(self.drawLineFlag)
+            trackingPath.setDrawMarkItem(self.drawMarkItemFlag)
 
             self.itemList.append(trackingPath)
 
@@ -103,6 +135,7 @@ class TrackingPathGroup(QGraphicsObject):
             item.setDrawItem(flag)
 
     def setDrawMarkItem(self, flag):
+        self.drawMarkItemFlag = flag
         for item in self.itemList:
             item.setDrawMarkItem(flag)
 
@@ -134,6 +167,7 @@ class TrackingPathGroup(QGraphicsObject):
         pos = self.currentFrameNo - min_value
 
         for i, item in enumerate(self.itemList):
+            # TODO: 内部データ表現を再考する必要あり．
             array = self.df.loc[min_value:max_value, i].as_matrix()
             if pos not in range(len(array)):
                 pos = None
@@ -185,7 +219,36 @@ class TrackingPathGroup(QGraphicsObject):
         dialog.colorChanged.connect(self.changeTrackingPathColor)
         dialog.show()
 
+    def saveColors(self, f_name):
+        if self.colors is None:
+            return False
+
+        colors = [[color.red(), color.green(), color.blue()] for color in self.colors]
+        df = pd.DataFrame(colors, columns=['red', 'green', 'blue'])
+        df.to_csv(f_name)
+
+        return True
+
+    def loadColors(self, f_name):
+        df = pd.read_csv(f_name)
+
+        if self.colors is None or len(self.df.index)==len(self.colors):
+            self.colors = [QColor(row['red'], row['green'], row['blue']) for index, row in df.iterrows()]
+
+            for item, color in zip(self.itemList, self.colors):
+                item.setColor(color)
+
+        return True
+
+
     @pyqtSlot(int, QColor)
     def changeTrackingPathColor(self, i, color):
         self.colors[i] = color
         self.itemList[i].setColor(color)
+        self.update()
+
+    def setColors(self, colors):
+        self.colors = colors
+        for rgb, item in zip(self.colors, self.itemList):
+            item.setColor(rgb)
+        self.update()

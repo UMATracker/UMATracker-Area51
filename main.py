@@ -511,6 +511,11 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             self.trackingPathGroup.setRect(self.inputScene.sceneRect())
             self.inputScene.addItem(self.trackingPathGroup)
 
+            shape = self.df.shape
+            self.num_items = int(shape[1]/2)
+            index = (np.repeat(range(self.num_items), 2).tolist(), [0,1]*self.num_items)
+            self.df.columns = pd.MultiIndex.from_tuples(tuple(zip(*index)))
+
             self.trackingPathGroup.setDataFrame(self.df)
 
             self.initialize()

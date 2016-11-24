@@ -141,76 +141,75 @@ class TrackingPath(QGraphicsObject):
                     self.item.setRect(rect)
                     self.setItemIsMovable(self.isItemMovable)
 
-                elif self.drawItemFlag:
+                if self.drawItemFlag:
                     self.item.show()
+                    self.textItem.show()
+                else:
+                    self.item.hide()
+                    self.textItem.hide()
 
                 self.item.setPos(*point)
                 self.item.mouseMoveEvent = self.generateItemMouseMoveEvent(self.item, point)
                 self.item.mousePressEvent = self.generateItemMousePressEvent(self.item, point)
 
                 self.textItem.setPos(*point)
-                prev_range = range(self.itemPos, -1, -self.markDelta)[1:]
-                next_range = range(self.itemPos, len(self.points), self.markDelta)[1:]
-                num_mark = len(prev_range) + len(next_range)
-
-                rect_half = QRectF(-self.radius/2, -self.radius/2, diameter/2, diameter/2)
-                while num_mark < len(self.markItemList) and len(self.markItemList)!=0:
-                    markItem = self.markItemList.pop()
-                    markTextItem = self.markTextItemList.pop()
-                    scene = self.scene()
-                    if scene is not None:
-                        scene.removeItem(markItem)
-                        scene.removeItem(markTextItem)
-
-                current_path = os.path.dirname(os.path.realpath(__file__))
-                while len(self.markItemList) < num_mark:
-                    # TODO: 目盛りを矢印に．
-                    # markItem = QGraphicsSvgItem(os.path.join(current_path, "svg", "small_arrow.svg"), self)
-                    markItem = QGraphicsRectItem(self)
-                    markItem.setBrush(Qt.black)
-                    markItem.setRect(rect_half)
-                    markItem.setZValue(9)
-
-                    # markItem.setFlags(QGraphicsItem.ItemIgnoresParentOpacity)
-                    # markItem.setOpacity(1)
-
-                    # print(markItem.boundingRect())
-                    # xlate = markItem.boundingRect().center()
-                    # t = QTransform()
-                    # # t.translate(xlate.x(), xlate.y())
-                    # t.rotate(90)
-                    # t.scale(0.03, 0.03)
-                    # # t.translate(-xlate.x(), -xlate.y())
-                    # markItem.setTransform(t)
-
-                    self.markItemList.append(markItem)
-
-                    markTextItem = GraphicsTextItemWithBackground(self)
-                    markTextItem.setBackgroundColor(Qt.black)
-                    markTextItem.setDefaultTextColor(Qt.white)
-                    self.markTextItemList.append(markTextItem)
-
-                for markItem, markTextItem, index in zip(self.markItemList, self.markTextItemList, chain(prev_range, next_range)):
-                    markItem.setPos(*self.points[index])
-
-                    markTextItem.setPos(*self.points[index])
-                    markTextItem.setPlainText(str(int((index-self.itemPos)/self.markDelta)))
-
-                    if self.drawMarkItemFlag:
-                        markItem.show()
-                        markTextItem.show()
-                    else:
-                        markItem.hide()
-                        markTextItem.hide()
-
 
             else:
                 self.item.hide()
-                self.textItem.hide()
 
-                for item, textItem in zip(self.markItemList, self.markTextItemList):
-                    item.hide()
-                    textItem.hide()
+            prev_range = range(self.itemPos, -1, -self.markDelta)[1:]
+            next_range = range(self.itemPos, len(self.points), self.markDelta)[1:]
+            num_mark = len(prev_range) + len(next_range)
+
+            rect_half = QRectF(-self.radius/2, -self.radius/2, diameter/2, diameter/2)
+            while num_mark < len(self.markItemList) and len(self.markItemList)!=0:
+                markItem = self.markItemList.pop()
+                markTextItem = self.markTextItemList.pop()
+                scene = self.scene()
+                if scene is not None:
+                    scene.removeItem(markItem)
+                    scene.removeItem(markTextItem)
+
+            current_path = os.path.dirname(os.path.realpath(__file__))
+            while len(self.markItemList) < num_mark:
+                # TODO: 目盛りを矢印に．
+                # markItem = QGraphicsSvgItem(os.path.join(current_path, "svg", "small_arrow.svg"), self)
+                markItem = QGraphicsRectItem(self)
+                markItem.setBrush(Qt.black)
+                markItem.setRect(rect_half)
+                markItem.setZValue(9)
+
+                # markItem.setFlags(QGraphicsItem.ItemIgnoresParentOpacity)
+                # markItem.setOpacity(1)
+
+                # print(markItem.boundingRect())
+                # xlate = markItem.boundingRect().center()
+                # t = QTransform()
+                # # t.translate(xlate.x(), xlate.y())
+                # t.rotate(90)
+                # t.scale(0.03, 0.03)
+                # # t.translate(-xlate.x(), -xlate.y())
+                # markItem.setTransform(t)
+
+                self.markItemList.append(markItem)
+
+                markTextItem = GraphicsTextItemWithBackground(self)
+                markTextItem.setBackgroundColor(Qt.black)
+                markTextItem.setDefaultTextColor(Qt.white)
+                self.markTextItemList.append(markTextItem)
+
+            for markItem, markTextItem, index in zip(self.markItemList, self.markTextItemList, chain(prev_range, next_range)):
+                markItem.setPos(*self.points[index])
+
+                markTextItem.setPos(*self.points[index])
+                markTextItem.setPlainText(str(int((index-self.itemPos)/self.markDelta)))
+
+                if self.drawMarkItemFlag:
+                    markItem.show()
+                    markTextItem.show()
+                else:
+                    markItem.hide()
+                    markTextItem.hide()
 
             self.update()
 
