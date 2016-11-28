@@ -64,8 +64,14 @@ def nCr(n,r):
 
 def get_interval(data):
     ranges = []
-    for key, group in itertools.groupby(enumerate(data), lambda index: index[0] - index[1]):
+
+    delta = 1
+    if len(data) > 1:
+        delta = data[1] - data[0]
+
+    for key, group in itertools.groupby(enumerate(data), lambda index: index[0]*delta - index[1]):
         group = list(map(operator.itemgetter(1), group))
+        print(group)
         if len(group) > 1:
             ranges.append((group[0], group[-1]))
         else:
@@ -518,6 +524,10 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
             self.trackingPathGroup.setDataFrame(self.df)
 
+            delta = self.df.index[1] - self.df.index[0]
+            self.videoPlaybackWidget.setPlaybackDelta(delta)
+            self.videoPlaybackWidget.setMaxTickableFrameNo(self.df.index[-1])
+
             self.initialize()
 
     def updateInputGraphicsView(self):
@@ -625,6 +635,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             plot_widget = pg.plot(title="{0}: {1}".format(FigureType(type(item)).name, name))
             plot_widget.addLegend()
             plot_item = plot_widget.getPlotItem()
+            plot_item.setTitle('Distance from {0} "{1}"'.format(FigureType(type(item)).name, name))
             bottom_axis = plot_item.getAxis("bottom")
             bottom_axis.setLabel("# of Frame")
             left_axis = plot_item.getAxis("left")
@@ -633,10 +644,10 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             y_max = 0
             for col, color in zip(range(col_n), self.trackingPathGroup.getColors()):
                 pen = QPen(QColor(color))
-                pen.setWidth(5)
+                pen.setWidth(1)
 
                 plot_data = self.df_dist.loc[:, "{0}_{1}".format(name, col)]
-                plot_widget.plot(plot_data, pen=pen, name=str(col))
+                plot_widget.plot(plot_data.index.values, plot_data, pen=pen, name=str(col))
 
                 y_max = max(np.max(plot_data), y_max)
 
