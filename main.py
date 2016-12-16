@@ -82,7 +82,7 @@ def get_interval(data):
 class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
     has_coordinates_attr_list = (FigureType.Point, FigureType.Line, FigureType.Polygon)
-    is_region_list = (FigureType.Polygon, FigureType.Ellipse, FigureType.Recutangular)
+    is_region_list = (FigureType.Polygon, FigureType.Ellipse, FigureType.Rectangular)
 
     def __init__(self):
         super(Ui_MainWindow, self).__init__()
@@ -211,7 +211,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
             name_num = max(name_num, val+1)
 
-        self.addRow(str(name_num), QColor('red'), FigureType.Recutangular)
+        self.addRow(str(name_num), QColor('red'), FigureType.Rectangular)
 
     def removeRegionButtonClicked(self):
         if not self.videoPlaybackWidget.isOpened():

@@ -84,7 +84,7 @@ class ColorListItemEditorCreator(QItemEditorCreatorBase):
 
 # TODO: Polygon support
 class FigureType(Enum):
-    Recutangular = ResizableRect
+    Rectangular = ResizableRect
     Ellipse = ResizableEllipse
     Polygon = MovablePolygon
     Point = MovablePoint
