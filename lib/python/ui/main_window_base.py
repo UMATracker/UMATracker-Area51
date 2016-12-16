@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\main_window_base.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.4.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -165,7 +165,7 @@ class Ui_MainWindowBase(object):
         MainWindowBase.setWindowTitle(_translate("MainWindowBase", "MainWindow"))
         self.graphicsBox.setTitle(_translate("MainWindowBase", "Video"))
         self.groupBox.setTitle(_translate("MainWindowBase", "Settings"))
-        self.label_2.setText(_translate("MainWindowBase", "Regions:"))
+        self.label_2.setText(_translate("MainWindowBase", "Objects:"))
         self.addRegionButton.setText(_translate("MainWindowBase", "+"))
         self.removeRegionButton.setText(_translate("MainWindowBase", "-"))
         self.label.setText(_translate("MainWindowBase", "Radius"))
