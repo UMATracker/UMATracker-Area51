@@ -43,22 +43,28 @@
 #############################################################################
 
 
-from PyQt5.QtCore import pyqtProperty, Qt, QVariant, QAbstractListModel, QModelIndex
+from PyQt5.QtCore import pyqtProperty, Qt, QVariant, QAbstractListModel, QModelIndex, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QApplication, QComboBox, QGridLayout,
         QItemEditorCreatorBase, QItemEditorFactory, QTableWidget,
         QTableWidgetItem, QWidget)
 
+import time
 from enum import Enum
 from lib.python.ui.resizable_object import ResizableRect, ResizableEllipse
 from lib.python.ui.movable_polygon import MovablePolygon, MovableLine
 from lib.python.ui.movable_point import MovablePoint
 
+
 class ColorListEditor(QComboBox):
+    focusCleared = pyqtSignal()
+
     def __init__(self, widget=None):
         super(ColorListEditor, self).__init__(widget)
 
         self.populateList()
+
+        self.activated[str].connect(self.activatedSlot)
 
     def getColor(self):
         color = self.itemData(self.currentIndex(), Qt.DecorationRole)
@@ -75,12 +81,33 @@ class ColorListEditor(QComboBox):
             self.insertItem(i, colorName)
             self.setItemData(i, color, Qt.DecorationRole)
 
+    def activatedSlot(self):
+        self.focusCleared.emit()
+
+    def focusInEvent(self, event):
+        if event.reason() == Qt.OtherFocusReason:
+            self.showPopup()
+
     # def currentIndexChanged(self, index):
     #     color = self.itemData(i).toPyObject()[0]
 
+
 class ColorListItemEditorCreator(QItemEditorCreatorBase):
+    def __init__(self):
+        super(ColorListItemEditorCreator, self).__init__()
+        self.func = None
+
     def createWidget(self, parent):
-        return ColorListEditor(parent)
+        editor = ColorListEditor(parent)
+
+        if self.func is not None:
+            editor.focusCleared.connect(self.func)
+
+        return editor
+
+    def setActivatedSlot(self, func):
+        self.func = func
+
 
 # TODO: Polygon support
 class FigureType(Enum):
@@ -90,7 +117,10 @@ class FigureType(Enum):
     Point = MovablePoint
     Line = MovableLine
 
+
 class FigureListEditor(QComboBox):
+    focusCleared = pyqtSignal()
+
     def __init__(self, widget=None):
         super(FigureListEditor, self).__init__(widget)
 
@@ -108,6 +138,8 @@ class FigureListEditor(QComboBox):
 
         self.populateList()
 
+        self.activated[str].connect(self.activatedSlot)
+
     def getString(self):
         string = self.itemData(self.currentIndex(), Qt.DisplayRole)
         return string
@@ -124,9 +156,30 @@ class FigureListEditor(QComboBox):
             else:
                 self.insertItem(i, fig.name)
 
+    def activatedSlot(self):
+        self.focusCleared.emit()
+
+    def focusInEvent(self, event):
+        if event.reason() == Qt.OtherFocusReason:
+            self.showPopup()
+
+
 class FigureListItemEditorCreator(QItemEditorCreatorBase):
+    def __init__(self):
+        super(FigureListItemEditorCreator, self).__init__()
+        self.func = None
+
     def createWidget(self, parent):
-        return FigureListEditor(parent)
+        editor = FigureListEditor(parent)
+
+        if self.func is not None:
+            editor.focusCleared.connect(self.func)
+
+        return editor
+
+    def setActivatedSlot(self, func):
+        self.func = func
+
 
 class Window(QWidget):
     def __init__(self, parent=None):

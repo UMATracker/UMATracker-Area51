@@ -118,12 +118,16 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
     def createGUI(self):
         colorEditorFactory = QItemEditorFactory()
-        colorEditorFactory.registerEditor(QVariant.Color, ColorListItemEditorCreator())
+        colorListItemEditorCreator = ColorListItemEditorCreator()
+        colorListItemEditorCreator.setActivatedSlot(self.comboBoxActivated)
+        colorEditorFactory.registerEditor(QVariant.Color, colorListItemEditorCreator)
         colorEditorDelegate = QStyledItemDelegate(self)
         colorEditorDelegate.setItemEditorFactory(colorEditorFactory)
 
         figureEditorFactory = QItemEditorFactory()
-        figureEditorFactory.registerEditor(QVariant.String, FigureListItemEditorCreator())
+        figureListItemEditorCreator = FigureListItemEditorCreator()
+        figureListItemEditorCreator.setActivatedSlot(self.comboBoxActivated)
+        figureEditorFactory.registerEditor(QVariant.String, figureListItemEditorCreator)
         figureEditorDelegate = QStyledItemDelegate(self)
         figureEditorDelegate.setItemEditorFactory(figureEditorFactory)
 
@@ -152,6 +156,9 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.actionPoints.triggered.connect(self.setPointsVisible)
         self.actionLines.triggered.connect(self.setLinesVisible)
         self.actionRegions.triggered.connect(self.setRegionsVisible)
+
+    def comboBoxActivated(self):
+        self.regionTableWidget.setFocus(Qt.OtherFocusReason)
 
     def setCoordinatesVisible(self, checked):
         for item in self.graphics_items.values():
