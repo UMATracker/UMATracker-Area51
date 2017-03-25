@@ -633,7 +633,7 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                     interactions[count] += 1
         progress.setValue(len(df.index))
 
-        matrix = np.zeros((col_n, col_n))
+        matrix = np.zeros((col_n, col_n), dtype=np.int64)
         for pos, (i, j) in enumerate(itertools.combinations(range(col_n), 2)):
             matrix[i, j] = interactions[pos]
             matrix[j, i] = interactions[pos]
@@ -682,12 +682,12 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                     }
                     tasks.append(data)
 
-        if np.any(matrix!=0):
+        if np.any(matrix[:] != 0):
             self.chord_diagram_dialog.setMatrix(matrix.tolist())
             self.chord_diagram_dialog.setColors(self.trackingPathGroup.getColors())
             self.chord_diagram_dialog.show()
 
-        if len(region_list)!=0:
+        if len(region_list) != 0:
             self.timeline_diagram_dialog.setTasks(tasks)
             self.timeline_diagram_dialog.setColors(colors)
             self.timeline_diagram_dialog.show()
