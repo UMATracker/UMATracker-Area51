@@ -670,6 +670,10 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
                 intervals = get_interval(df.index)
                 for interval in intervals:
                     start, end = interval
+
+                    if end != self.df_region.index[-1]:
+                        end = end + (np.subtract(*self.df_region.index[1::-1]) - 1)
+
                     data = {
                             "startDate": start,
                             "endDate": end,
@@ -681,12 +685,11 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         if np.any(matrix!=0):
             self.chord_diagram_dialog.setMatrix(matrix.tolist())
             self.chord_diagram_dialog.setColors(self.trackingPathGroup.getColors())
-            self.timeline_diagram_dialog.setTasks(tasks)
-            self.timeline_diagram_dialog.setColors(colors)
-
             self.chord_diagram_dialog.show()
 
         if len(region_list)!=0:
+            self.timeline_diagram_dialog.setTasks(tasks)
+            self.timeline_diagram_dialog.setColors(colors)
             self.timeline_diagram_dialog.show()
 
 
