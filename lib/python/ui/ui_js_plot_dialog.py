@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\ui_js_plot_dialog.ui'
+# Form implementation generated from reading ui file 'ui_js_plot_dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -16,7 +16,7 @@ class Ui_JSPlotDialog(object):
         JSPlotDialog.setMaximumSize(QtCore.QSize(650, 650))
         self.horizontalLayout = QtWidgets.QHBoxLayout(JSPlotDialog)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.webView = QtWebKitWidgets.QWebView(JSPlotDialog)
+        self.webView = QtWebEngineWidgets.QWebEngineView(JSPlotDialog)
         self.webView.setUrl(QtCore.QUrl("about:blank"))
         self.webView.setObjectName("webView")
         self.horizontalLayout.addWidget(self.webView)
@@ -28,4 +28,4 @@ class Ui_JSPlotDialog(object):
         _translate = QtCore.QCoreApplication.translate
         JSPlotDialog.setWindowTitle(_translate("JSPlotDialog", "Dialog"))
 
-from PyQt5 import QtWebKitWidgets
+from PyQt5 import QtWebEngineWidgets
