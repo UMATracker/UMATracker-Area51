@@ -33,6 +33,12 @@ class ResizableGraphicsObject(QGraphicsObject):
         self.color = QColor(color)
         self.color.setAlpha(32)
 
+    def getPoints(self):
+        tl = self._rect.topLeft()
+        br = self._rect.bottomRight()
+
+        return [[tl.x(), tl.y()], [br.x(), br.y()]]
+
     def setPoints(self, points):
         self.points = points
         rect = QRectF(QPointF(*points[0]), QPointF(*points[1]))
