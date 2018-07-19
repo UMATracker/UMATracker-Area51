@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os, sys
+import os
+import sys
+import pickle
 
 # determine if application is a script file or frozen exe
 if getattr(sys, 'frozen', False):
@@ -13,8 +15,8 @@ if getattr(sys, 'frozen', False):
 elif __file__:
     currentDirPath = os.getcwd()
 
-sampleDataPath = os.path.join(currentDirPath,"data")
-userDir        = os.path.expanduser('~')
+sampleDataPath = os.path.join(currentDirPath, "data")
+userDir = os.path.expanduser('~')
 
 import re, hashlib, json, itertools, operator
 
@@ -77,6 +79,9 @@ def get_interval(data):
         else:
             ranges.append((group[0], group[0]))
     return ranges
+
+from collections import namedtuple
+Area51Object = namedtuple('Area51Object', ['name', 'color', 'type', 'param'])
 
 
 class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
@@ -337,18 +342,26 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
 
                 changed_item.setData(Qt.UserRole, new_type)
 
-                height, width, dim = self.cv_img.shape
-                if new_type is FigureType.Point:
-                    array = np.array([0.5*width, 0.5*height])
-                elif new_type is FigureType.Polygon:
-                    array = [
+                if hasattr(self, 'predef_obj_params') and \
+                   name in self.predef_obj_params.keys():
+                    array = self.predef_obj_params.pop(name)
+                else:
+                    height, width, dim = self.cv_img.shape
+                    if new_type is FigureType.Point:
+                        array = np.array([0.5*width, 0.5*height])
+                    elif new_type is FigureType.Polygon:
+                        array = [
                             [0.1*width, 0.1*height],
                             [0.9*width, 0.1*height],
                             [0.9*width, 0.9*height],
                             [0.1*width, 0.9*height]
-                            ]
-                else:
-                    array = [[0.1*width, 0.1*height], [0.9*width, 0.9*height]]
+                        ]
+                    else:
+                        array = [
+                            [0.1*width, 0.1*height],
+                            [0.9*width, 0.9*height]
+                        ]
+
                 new_fig.setPoints(array)
 
         self.updateInputGraphicsView()
@@ -453,10 +466,12 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         if self.trackingPathGroup is not None:
             self.trackingPathGroup.openColorSelectorDialog(self)
 
-    def processDropedFile(self,filePath):
-        root,ext = os.path.splitext(filePath)
+    def processDropedFile(self, filePath):
+        root, ext = os.path.splitext(filePath)
         if ext == ".csv":
             self.openCSVFile(filePath=filePath)
+        elif ext == ".a51":
+            self.openArea51ObjectsFile(filePath=filePath)
         elif self.openVideoFile(filePath=filePath):
             return
 
@@ -487,6 +502,8 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.actionOpenVideo.triggered.connect(self.openVideoFile)
         self.actionOpenCSVFile.triggered.connect(self.openCSVFile)
         self.actionSaveCSVFile.triggered.connect(self.saveCSVFile)
+        self.actionOpenArea51ObjectsFile.triggered.connect(self.openArea51ObjectsFile)
+        self.actionSaveArea51ObjectsFile.triggered.connect(self.saveArea51ObjectsFile)
         self.actionCalculate.triggered.connect(self.process)
         self.actionTrackingPathColor.triggered.connect(self.openTrackingPathColorSelectorDialog)
 
@@ -508,6 +525,19 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
             self.initialize()
 
             return True
+
+    def openArea51ObjectsFile(self, activated=False, filePath = None):
+        if filePath is None:
+            filePath, _ = QFileDialog.getOpenFileName(None, 'Open Area51 Object File', userDir, 'A51 files (*.a51)')
+
+        if len(filePath) is not 0:
+            with open(filePath, "rb") as fp:
+                items = pickle.load(fp)
+
+            self.predef_obj_params = {}
+            for item in items:
+                self.predef_obj_params[item.name] = item.param
+                self.addRow(item.name, item.color, item.type)
 
     def openCSVFile(self, activated=False, filePath=None):
         if filePath is None:
@@ -698,6 +728,30 @@ class Ui_MainWindow(QMainWindow, Ui_MainWindowBase):
         self.savedFlag = False
 
         # self.saveCSVFile()
+
+    def saveArea51ObjectsFile(self, activated=False, filePath = None):
+        if len(self.graphics_items) == 0:
+            return
+
+        dirctory = os.path.dirname(self.filePath)
+        base_name = os.path.splitext(os.path.basename(self.filePath))[0]
+        path = os.path.join(dirctory, '{0}-area51obj.a51'.format(base_name))
+        filePath, _ = QFileDialog.getSaveFileName(None, 'Save Area51 Object File', path, 'A51 files (*.a51)')
+
+        if len(filePath) != 0:
+            names = [col.data(Qt.UserRole) for col in self.getCol(0)]
+            colors = [col.data(Qt.BackgroundRole) for col in self.getCol(1)]
+            types = [col.data(Qt.UserRole) for col in self.getCol(2)]
+            params = [self.graphics_items[name].getPoints() for name in names]
+
+            items = [
+                Area51Object(n, c, t, p)
+                for n, c, t, p in zip(names, colors, types, params)
+            ]
+
+            logger.debug("Saving Graphics Item file: {0}".format(filePath))
+            with open(filePath, "wb") as fp:
+                pickle.dump(items, fp)
 
     def saveCSVFile(self, activated=False, filePath = None):
         if self.df is None or self.df_dist is None or self.df_region is None or self.relation_matrix is None:

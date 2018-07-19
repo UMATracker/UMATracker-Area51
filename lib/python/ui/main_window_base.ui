@@ -163,6 +163,9 @@
     <addaction name="actionOpenCSVFile"/>
     <addaction name="actionSaveCSVFile"/>
     <addaction name="separator"/>
+    <addaction name="actionOpenArea51ObjectsFile"/>
+    <addaction name="actionSaveArea51ObjectsFile"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuRun">
@@ -292,6 +295,16 @@
    </property>
    <property name="text">
     <string>Lines</string>
+   </property>
+  </action>
+  <action name="actionSaveArea51ObjectsFile">
+   <property name="text">
+    <string>Save Area51 Objects File</string>
+   </property>
+  </action>
+  <action name="actionOpenArea51ObjectsFile">
+   <property name="text">
+    <string>Open Area51 Objects File</string>
    </property>
   </action>
  </widget>

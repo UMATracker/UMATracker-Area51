@@ -39,6 +39,9 @@ class MovablePolygonVertex(QGraphicsObject):
         self.color = QColor(color)
         self.color.setAlpha(32)
 
+    def getPoints(self):
+        return [[p.x(), p.y()] for p in self.points]
+
     def setPoints(self, ps):
         self.points.clear()
         self.textItemList.clear()

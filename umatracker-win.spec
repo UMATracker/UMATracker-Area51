@@ -49,6 +49,32 @@ for dir_path, dir_names, file_names in os.walk(numpy_dll_path):
                         )
                     )
 
+# For Numpy OpenBLAS
+numpy_dll_path = os.path.join(get_python_lib(), 'numpy', '.libs')
+for dir_path, dir_names, file_names in os.walk(numpy_dll_path):
+    for file_name in file_names:
+        if os.path.splitext(file_name)[1]=='.dll':
+            tmp.append(
+                    (
+                        file_name,
+                        os.path.join(dir_path, file_name),
+                        'BINARY'
+                        )
+                    )
+
+# For Scipy
+scipy_dll_path = os.path.join(get_python_lib(), 'scipy', 'extra-dll')
+for dir_path, dir_names, file_names in os.walk(scipy_dll_path):
+    for file_name in file_names:
+        if os.path.splitext(file_name)[1]=='.dll':
+            tmp.append(
+                    (
+                        file_name,
+                        os.path.join(dir_path, file_name),
+                        'BINARY'
+                        )
+                    )
+
 a.binaries += tmp
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=None)
