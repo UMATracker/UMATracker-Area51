@@ -1,14 +1,20 @@
 import os
+import glob
 
 datas = [('./data', 'data'), ('./lib/html', 'lib/html')]
 
-binaries = [(r'/usr/local/Cellar/ffms2/2.21/lib/libffms2.dylib', 'lib'), ]
+dlls = glob.glob('/usr/local/Cellar/ffms2/*/lib/libffms2.dylib')
+
+binaries = [
+    (x, 'lib')
+    for x in dlls
+]
 
 a = Analysis(['./main.py'],
         pathex=['./'],
         binaries=binaries,
         datas=datas,
-        hiddenimports=[],
+        hiddenimports=['fractions'],
         hookspath=None,
         runtime_hooks=None,
         excludes=None,
