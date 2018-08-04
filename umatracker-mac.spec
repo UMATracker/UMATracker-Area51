@@ -3,11 +3,25 @@ import glob
 
 datas = [('./data', 'data'), ('./lib/html', 'lib/html')]
 
-dlls = glob.glob('/usr/local/Cellar/ffms2/*/lib/libffms2.dylib')
+if os.getenv('CONDA_PREFIX'):
+    PREFIX = os.getenv('CONDA_PREFIX')
+else:
+    PREFIX = '/usr/local/Cellar/ffms2/*'
+
+ffms2_dlls = glob.glob(os.path.join(PREFIX, 'lib', 'libffms2.dylib'))
+ffmpeg_dlls = glob.glob(os.path.join(PREFIX, 'lib', 'libavresample.[0-9].dylib'))
+ffmpeg_dlls += glob.glob(os.path.join(PREFIX, 'lib', 'libswscale.[0-9].dylib'))
+ffmpeg_dlls += glob.glob(os.path.join(PREFIX, 'lib', 'libavutil.[0-9][0-9].dylib'))
+ffmpeg_dlls += glob.glob(os.path.join(PREFIX, 'lib', 'libavcodec.[0-9][0-9].dylib'))
+ffmpeg_dlls += glob.glob(os.path.join(PREFIX, 'lib', 'libavformat.[0-9][0-9].dylib'))
 
 binaries = [
     (x, 'lib')
-    for x in dlls
+    for x in ffms2_dlls
+]
+binaries = [
+    (x, '.')
+    for x in ffmpeg_dlls
 ]
 
 a = Analysis(['./main.py'],
