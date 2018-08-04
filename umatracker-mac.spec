@@ -19,7 +19,7 @@ binaries = [
     (x, 'lib')
     for x in ffms2_dlls
 ]
-binaries = [
+binaries += [
     (x, '.')
     for x in ffmpeg_dlls
 ]
