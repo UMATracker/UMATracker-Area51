@@ -41,7 +41,6 @@ dependencies:
   - six
   - tk
   - wheel
-  - x264
   - xorg-kbproto
   - xorg-libice
   - xorg-libsm
