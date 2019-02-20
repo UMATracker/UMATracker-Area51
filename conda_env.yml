@@ -5,7 +5,7 @@ channels:
 dependencies:
   - bzip2
   - cython
-  - ffmpeg=3.4.1
+  - ffmpeg
   - fftw
   - fontconfig
   - freetype
@@ -85,7 +85,7 @@ dependencies:
   - mkl
   - ncurses
   - numpy
-  - opencv=3.3.1
+  - opencv
   - openssl
   - pyqt=5.9.2
   - python=3.6.5
