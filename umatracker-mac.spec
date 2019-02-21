@@ -24,6 +24,8 @@ binaries += [
     for x in ffmpeg_dlls
 ]
 
+binaries.append((os.path.join('dll', 'mac', 'qt.conf'), '.'))
+
 a = Analysis(['./main.py'],
         pathex=['./'],
         binaries=binaries,
