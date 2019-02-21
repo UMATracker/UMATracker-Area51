@@ -1,7 +1,7 @@
 import os
 import glob
 
-datas = [('./data', 'data'), ('./lib/html', 'lib/html')]
+datas = [('./data', 'data'), ('./lib/html', 'lib/html'), ('./qt/mac/qt.conf', '.')]
 
 if os.getenv('CONDA_PREFIX'):
     PREFIX = os.getenv('CONDA_PREFIX')
@@ -23,8 +23,6 @@ binaries += [
     (x, '.')
     for x in ffmpeg_dlls
 ]
-
-binaries.append((os.path.join('dll', 'mac', 'qt.conf'), '.'))
 
 a = Analysis(['./main.py'],
         pathex=['./'],
