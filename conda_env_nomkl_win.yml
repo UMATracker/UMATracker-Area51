@@ -57,6 +57,7 @@ dependencies:
   - openssl
   - pyqt=5.9.2
   - python=3.6.5
+  - pywin32
   - qt
   - scikit-learn
   - scipy

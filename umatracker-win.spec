@@ -2,7 +2,7 @@ import os
 from distutils.sysconfig import get_python_lib
 import platform
 
-datas = [('./data', 'data'), ('./lib/html', 'lib/html')]
+datas = [('./data', 'data'), ('./lib/html', 'lib/html'), ('./qt/win/qt.conf', '.')]
 
 a = Analysis(['./main.py'],
         pathex=['./'],
