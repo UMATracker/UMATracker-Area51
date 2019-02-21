@@ -1,9 +1,11 @@
-name: uma-dev
+name: uma-dev-nomkl
 channels:
   - conda-forge
   - defaults
 dependencies:
+  - blas
   - bzip2
+  - certifi
   - cython
   - ffmpeg
   - fftw
@@ -14,11 +16,11 @@ dependencies:
   - giflib
   - graphite2
   - graphviz
+  - hdf5
   - icu
   - jpeg
   - libffi
   - libiconv
-  - libidn11
   - libpng
   - libtiff
   - libwebp
@@ -26,6 +28,7 @@ dependencies:
   - libxml2
   - nasm
   - openblas
+  - opencv
   - openjpeg
   - pandas
   - pcre
@@ -43,19 +46,14 @@ dependencies:
   - wheel
   - xz
   - zlib
-  - blas
   - ca-certificates
   - cairo
-  - certifi
   - expat
   - glib
   - harfbuzz
-  - hdf5
   - intel-openmp
-  - libprotobuf
-  - mkl
+  - nomkl
   - numpy
-  - opencv
   - openssl
   - pyqt=5.9.2
   - python=3.6.5
@@ -64,5 +62,5 @@ dependencies:
   - scipy
   - sip
   - sqlite
-prefix: /Users/rito/miniconda3/envs/uma-dev
+prefix: /Users/rito/miniconda3/envs/uma-dev-nomkl
 
