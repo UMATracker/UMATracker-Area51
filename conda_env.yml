@@ -7,12 +7,14 @@ dependencies:
   - ffmpeg
   - geos
   - icu
+  - nasm
   - openblas
   - pandas
   - pip
   - pyqtgraph
   - shapely
   - x264
+  - zlib
   - blas
   - intel-openmp
   - libgfortran
