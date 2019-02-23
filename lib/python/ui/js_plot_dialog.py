@@ -72,8 +72,8 @@ class ChordDiagramDialog(Ui_JSPlotDialog, QDialog):
         QDialog.show(self)
 
     def draw(self, flag):
-        frame= self.webView.page().mainFrame()
-        frame.evaluateJavaScript("draw_chord_diagram({mtx}, {clr})".format(mtx=self.matrix, clr=self.colors))
+        page = self.webView.page()
+        page.runJavaScript("draw_chord_diagram({mtx}, {clr})".format(mtx=self.matrix, clr=self.colors))
 
     def closeEvent(self,event):
         pass
@@ -132,8 +132,8 @@ class TimelineDiagramDialog(Ui_JSPlotDialog, QDialog):
         QDialog.show(self)
 
     def draw(self, flag):
-        frame= self.webView.page().mainFrame()
-        frame.evaluateJavaScript("draw_timeline_diagram({tasks}, {taskNames}, {statusNames}, {colors})".format(tasks=self.tasks, taskNames=self.taskNames, statusNames=self.statusNames, colors=self.colors))
+        page = self.webView.page()
+        page.runJavaScript("draw_timeline_diagram({tasks}, {taskNames}, {statusNames}, {colors})".format(tasks=self.tasks, taskNames=self.taskNames, statusNames=self.statusNames, colors=self.colors))
 
     def closeEvent(self,event):
         pass
