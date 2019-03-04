@@ -71,6 +71,9 @@ elif os.name == 'posix':  # FIXME:Linuxだと落ちる．
     ffms2_path_list = glob.glob(
         os.path.join(FFMS2_PREFIX, 'lib', 'libffms2.dylib')
     )
+    ffms2_path_list += glob.glob(
+        os.path.join(FFMS2_PREFIX, 'lib', 'libffms2.so')
+    )
     ffms2_path_list.insert(
         0,
         os.path.join(currentDirPath, 'lib', 'libffms2.dylib')
