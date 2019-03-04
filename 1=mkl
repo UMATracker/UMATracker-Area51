@@ -1,0 +1,30 @@
+Solving environment: ...working... done
+
+## Package Plan ##
+
+  environment location: /home/rito/miniconda3/envs/uma-dev
+
+  added / updated specs: 
+    - blas
+
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    openssl-1.0.2r             |       h7b6447c_0         3.2 MB
+    ca-certificates-2019.1.23  |                0         126 KB
+    certifi-2018.11.29         |           py36_0         146 KB
+    ------------------------------------------------------------
+                                           Total:         3.4 MB
+
+The following packages will be UPDATED:
+
+    ca-certificates: 2018.11.29-ha4d7672_0 conda-forge --> 2019.1.23-0      
+    openssl:         1.0.2r-h14c3975_0     conda-forge --> 1.0.2r-h7b6447c_0
+
+The following packages will be DOWNGRADED:
+
+    certifi:         2018.11.29-py36_1000  conda-forge --> 2018.11.29-py36_0
+
+Proceed ([y]/n)? 
