@@ -7,15 +7,15 @@ dependencies:
   - ffmpeg
   - geos
   - icu
+  - jasper<2
   - nasm
   - openblas
   - pandas
-  - pip
   - pyqtgraph
   - shapely
   - x264
   - zlib
-  - blas
+  - blas>=1=mkl
   - intel-openmp
   - libgfortran
   - mkl
@@ -25,6 +25,8 @@ dependencies:
   - python=3.6.5
   - qt
   - readline
-  - scikit-learn
+  - scikit-learn<0.20
   - scipy
+  - pip:
+    - networkx==1.9.1
 prefix: /Users/rito/miniconda3/envs/uma-dev
