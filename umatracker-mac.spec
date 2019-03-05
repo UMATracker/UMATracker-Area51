@@ -88,6 +88,10 @@ coll = COLLECT(exe,
         name=os.path.join('dist', 'UMATracker'))
 
 app = BUNDLE(exe,
+        a.scripts,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
         name=os.path.join('dist', 'UMATracker-Area51.app'),
         appname="UMATracker-Area51",
         version = '0.1', icon='./icon/icon.icns'
