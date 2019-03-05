@@ -68,6 +68,9 @@ a.binaries += tmp
 pyz = PYZ(a.pure, a.zipped_data, cipher=None)
 exe = EXE(pyz,
         a.scripts,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
         name='UMATracker-Area51',
         debug=DEBUG_FLAG,
         strip=None,
@@ -84,7 +87,7 @@ coll = COLLECT(exe,
         upx=True,
         name=os.path.join('dist', 'UMATracker'))
 
-app = BUNDLE(coll,
+app = BUNDLE(exe,
         name=os.path.join('dist', 'UMATracker-Area51.app'),
         appname="UMATracker-Area51",
         version = '0.1', icon='./icon/icon.icns'
