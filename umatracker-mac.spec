@@ -66,6 +66,22 @@ for lib_path in lib_path_list:
 a.binaries += tmp
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+
+if DEBUG_FLAG:
+    exe_debug = EXE(
+        pyz,
+        a.scripts,
+        a.binaries,
+        a.zipfiles,
+        a.datas,
+        name='UMATracker-Area51.debug',
+        debug=DEBUG_FLAG,
+        strip=None,
+        upx=True,
+        console=DEBUG_FLAG,
+        icon='./icon/icon.icns'
+    )
+
 exe = EXE(pyz,
         a.scripts,
         name='UMATracker-Area51',
@@ -73,7 +89,7 @@ exe = EXE(pyz,
         strip=None,
         upx=True,
         exclude_binaries=True,
-        console=DEBUG_FLAG, icon='./icon/icon.icns')
+        console=False, icon='./icon/icon.icns')
 
 coll = COLLECT(exe,
         a.scripts,
