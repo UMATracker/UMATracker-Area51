@@ -76,6 +76,7 @@ exe = EXE(pyz,
         debug=DEBUG_FLAG,
         strip=None,
         upx=True,
+        exclude_binaries=True,
         console=DEBUG_FLAG, icon='./icon/icon.icns')
 
 coll = COLLECT(exe,
