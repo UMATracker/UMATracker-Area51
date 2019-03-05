@@ -1,6 +1,11 @@
 import os
 import glob
 
+
+DEBUG_FLAG = False
+if os.getenv('UMA_DEBUG') == 'true':
+    DEBUG_FLAG = True
+
 datas = [('./data', 'data'), ('./lib/html', 'lib/html'), ('./qt/mac/qt.conf', '.')]
 
 if os.getenv('CONDA_PREFIX'):
@@ -68,10 +73,10 @@ exe = EXE(pyz,
         a.datas,
         a.binaries,
         name='UMATracker-Area51',
-        debug=False,
+        debug=DEBUG_FLAG,
         strip=None,
         upx=True,
-        console=False, icon='./icon/icon.icns')
+        console=DEBUG_FLAG, icon='./icon/icon.icns')
 
 coll = COLLECT(exe,
         a.binaries,
