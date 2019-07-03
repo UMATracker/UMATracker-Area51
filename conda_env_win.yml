@@ -16,7 +16,7 @@ dependencies:
   - numpy
   - opencv
   - pyqt=5.9.2
-  - python=3.6.5
+  - python>=3.7
   - pywin32
   - qt
   - scikit-learn<0.20
