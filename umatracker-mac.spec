@@ -65,6 +65,8 @@ for lib_path in lib_path_list:
                         )
 a.binaries += tmp
 
+# FIXME: exclude_binaries=Trueだとなぜかうまく動かない
+# https://github.com/UMATracker/UMATracker-Area51/issues/6
 pyz = PYZ(a.pure, cipher=None)
 exe = EXE(pyz,
         a.scripts,
