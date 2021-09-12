@@ -7,7 +7,7 @@ DEBUG_FLAG = False
 if os.getenv('UMA_DEBUG') == 'true':
     DEBUG_FLAG = True
 
-datas = [('./data', 'data'), ('./lib/html', 'lib/html'), ('./qt/win/qt.conf', '.')]
+datas = [('./data', 'data'), ('./lib/html', 'lib/html')]
 
 a = Analysis(['./main.py'],
         pathex=['./'],
@@ -98,6 +98,11 @@ for dir_path, dir_names, file_names in os.walk(scipy_dll_path):
 a.binaries += tmp
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+
+# Override qt.conf
+for i, data in enumerate(a.datas):
+    if data[0] == r'PyQt5\Qt\bin\qt.conf':
+        a.datas[i] = (r'PyQt5\Qt\bin\qt.conf', r'qt\win\qt.conf', 'DATA')
 
 exe = EXE(pyz,
         a.scripts,
