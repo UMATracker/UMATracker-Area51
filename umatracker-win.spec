@@ -99,6 +99,11 @@ a.binaries += tmp
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=None)
 
+# Override QtWebEngineProcess.exe
+for i, binary in enumerate(a.binaries):
+    if r'QtWebEngineProcess.exe' in binary[1]:
+        a.binaries[i] = (r'QtWebEngineProcess.exe', binary[1], 'BINARY')
+
 exe = EXE(pyz,
         a.scripts,
         name='UMATracker-Area51',
